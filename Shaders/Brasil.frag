@@ -12,6 +12,10 @@ void main()
 
     //cor do fundo background
     FragColor = vec4(0,1,0, 1.0);
+
+    if(uv.y < 6 * uv.x && uv.y < 1.0 - 2 * uv.x){
+    FragColor = vec4(1, 1, 0, 1.0);
+    }
     
     // circulo azul no meio
     if(x < 0.25) { 
