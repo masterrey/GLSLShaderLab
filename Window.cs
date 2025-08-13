@@ -6,6 +6,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 
 namespace GLSLShaderLab
 {
@@ -66,6 +67,7 @@ namespace GLSLShaderLab
             
             Console.WriteLine("Controles:");
             Console.WriteLine("  setas: Trocar entre shaders");
+            Console.WriteLine("  J   : Shader aleatório");
             Console.WriteLine("  H   : Mostrar/ocultar ajuda");
             Console.WriteLine("  ESC : Sair");
             Console.WriteLine();
@@ -116,6 +118,17 @@ namespace GLSLShaderLab
                 case Keys.H:
                     _showHelp = !_showHelp;
                     break;
+                case Keys.J:
+                    Random rng = new Random();
+                    int rngNumber = rng.Next(_availableShaders.Count);
+                    while(rngNumber == _currentShaderIndex)
+                    {
+                        rngNumber = rng.Next(_availableShaders.Count);
+                    }
+                    _currentShaderIndex = rngNumber;
+                    LoadShader(_availableShaders[_currentShaderIndex]);
+                    break;
+
             }
         }
 
