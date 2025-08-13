@@ -21,4 +21,12 @@
     <EmbeddedResource Remove="glsl Shaders\**" />
     <None Remove="glsl Shaders\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Shaders\.frag" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Shaders\.frag" />
+  </ItemGroup>
 </Project>
