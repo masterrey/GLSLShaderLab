@@ -23,4 +23,9 @@ void main()
     { 
         FragColor = vec4(0.0, 0.2, 0.6, 1.0);
     }
+
+    if (x < 0.2 && abs(uv.y - 0.52 + 0.021 * sin((uv.x - 0.6) * 14)) < 0.0225)
+    {
+        FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
 }
