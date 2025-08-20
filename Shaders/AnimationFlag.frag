@@ -12,7 +12,7 @@ void main()
 
     if (uv.y < wave) {
     // Top half: white
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = vec4(0.89, 0.10, 0.27, 1.0);
     }
 
     if (uv.y < wave + 0.2) {
