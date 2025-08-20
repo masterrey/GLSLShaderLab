@@ -1,12 +1,28 @@
 #version 330 core
 out vec4 FragColor;
-// uniform is a external variable that is set by the application
 uniform float iTime;
 uniform vec2 iResolution;
 
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec3 color = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0,2,4));
-    FragColor = vec4(color, 1.0);
+
+    float wave = (cos((iTime + uv.x) * 2) * 0.1) + 0.1;
+
+    FragColor = vec4(0.0, 0.533, 0.8, 1.0);
+
+    if(uv.y < wave) {
+        // top half: blue
+        FragColor = vec4(0.0, 0.533, 0.8, 1.0);
+    }
+    if(uv.y < wave+0.2) {
+        // top half: blue
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    else if(uv.y < wave+0.4) {
+        // top half: blue
+        FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+    
 }
