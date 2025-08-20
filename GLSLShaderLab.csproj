@@ -29,4 +29,10 @@
   <ItemGroup>
     <None Remove="Shaders\.frag" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Shaders\AnimationFlag.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
