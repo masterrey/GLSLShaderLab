@@ -24,7 +24,7 @@ namespace GLSLShaderLab
         {
             _selectedShader = selectedShader;
             
-            // Carregar lista de shaders disponíveis
+            // Carregar lista de shaders disponï¿½veis
             var selector = new ShaderSelector();
             _availableShaders = selector.GetAvailableShaders();
             _currentShaderIndex = _availableShaders.FindIndex(s => s.Name == selectedShader.Name);
@@ -129,6 +129,8 @@ namespace GLSLShaderLab
             _shader?.Use();
             _shader?.SetFloat("iTime", _time);
             _shader?.SetVector2("iResolution", new Vector2(Size.X, Size.Y));
+            _shader?.SetVector2("iMouse", new Vector2(MouseState.X, Size.Y - MouseState.Y));
+            _shader?.SetFloat("iMouseClick", MouseState.IsButtonDown(MouseButton.Left) ? 1 : 0);
 
             GL.BindVertexArray(_vao);
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
