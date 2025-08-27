@@ -18,6 +18,8 @@ namespace GLSLShaderLab
         private List<ShaderSelector.ShaderInfo> _availableShaders;
         private int _currentShaderIndex;
         private bool _showHelp;
+        
+
 
         public Window(int width, int height, string title, ShaderSelector.ShaderInfo selectedShader)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(width, height), Title = $"{title} - {selectedShader.Name}" })
@@ -122,9 +124,11 @@ namespace GLSLShaderLab
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
-            _time += (float)args.Time;
+             _time += (float)args.Time;
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+             GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            
 
             _shader?.Use();
             _shader?.SetFloat("iTime", _time);
