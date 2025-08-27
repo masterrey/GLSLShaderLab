@@ -3,7 +3,7 @@ out vec4 FragColor;
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
-
+uniform float iMouseClick;
 
 
 // Funcao para desenhar circulo com borda suave
@@ -21,6 +21,7 @@ void main()
     vec3 baseColor = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0,2,4));
 
     vec4 circle = DrawCircle(uv, vec3(0.0, 0.0, 1.0), mouseNorm, 0.1, 0.01);
+       circle.a *= iMouseClick;
 
     // Mistura a cor base com o circulo usando o alpha do circulo
     FragColor = mix(vec4(baseColor, 1.0), circle, circle.a);
