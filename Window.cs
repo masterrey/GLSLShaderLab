@@ -5,7 +5,6 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace GLSLShaderLab
 {
@@ -19,12 +18,14 @@ namespace GLSLShaderLab
         private int _currentShaderIndex;
         private bool _showHelp;
 
+        private int _clickCount = 0;          
+        private bool _wasMouseDown = false;   
+
         public Window(int width, int height, string title, ShaderSelector.ShaderInfo selectedShader)
             : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(width, height), Title = $"{title} - {selectedShader.Name}" })
         {
             _selectedShader = selectedShader;
-            
-            // Carregar lista de shaders dispon�veis
+
             var selector = new ShaderSelector();
             _availableShaders = selector.GetAvailableShaders();
             _currentShaderIndex = _availableShaders.FindIndex(s => s.Name == selectedShader.Name);
@@ -63,7 +64,7 @@ namespace GLSLShaderLab
             GL.EnableVertexAttribArray(0);
 
             LoadShader(_selectedShader);
-            
+
             Console.WriteLine("Controles:");
             Console.WriteLine("  setas: Trocar entre shaders");
             Console.WriteLine("  H   : Mostrar/ocultar ajuda");
@@ -96,7 +97,7 @@ namespace GLSLShaderLab
                 case Keys.Escape:
                     Close();
                     break;
-                    
+
                 case Keys.Left:
                     if (_availableShaders.Count > 1)
                     {
@@ -104,7 +105,7 @@ namespace GLSLShaderLab
                         LoadShader(_availableShaders[_currentShaderIndex]);
                     }
                     break;
-                    
+
                 case Keys.Right:
                     if (_availableShaders.Count > 1)
                     {
@@ -112,11 +113,23 @@ namespace GLSLShaderLab
                         LoadShader(_availableShaders[_currentShaderIndex]);
                     }
                     break;
-                    
+
                 case Keys.H:
                     _showHelp = !_showHelp;
                     break;
             }
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs args)
+        {
+            base.OnUpdateFrame(args);
+
+            bool isMouseDown = MouseState.IsButtonDown(MouseButton.Left);
+            if (isMouseDown && !_wasMouseDown)
+            {
+                _clickCount++;
+            }
+            _wasMouseDown = isMouseDown;
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -131,6 +144,7 @@ namespace GLSLShaderLab
             _shader?.SetVector2("iResolution", new Vector2(Size.X, Size.Y));
             _shader?.SetVector2("iMouse", new Vector2(MouseState.X, Size.Y - MouseState.Y));
             _shader?.SetFloat("iMouseClick", MouseState.IsButtonDown(MouseButton.Left) ? 1 : 0);
+            _shader?.SetFloat("iClickCount", (float)_clickCount);  // Passa o número de cliques para o shader
 
             GL.BindVertexArray(_vao);
             GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
