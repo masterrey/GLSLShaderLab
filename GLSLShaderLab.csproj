@@ -21,4 +21,10 @@
     <EmbeddedResource Remove="glsl Shaders\**" />
     <None Remove="glsl Shaders\**" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Shaders\bandeira.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
