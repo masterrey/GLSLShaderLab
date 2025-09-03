@@ -3,7 +3,6 @@ out vec4 FragColor;
 uniform float iTime;
 uniform vec2 iResolution;
 
-
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
@@ -25,5 +24,5 @@ void main()
         // top half: blue
         FragColor = vec4(1.0, 1.0, 1.0, 1.0);
     }
- 
+    
 }
