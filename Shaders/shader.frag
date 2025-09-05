@@ -1,5 +1,6 @@
 #version 330 core
 out vec4 FragColor;
+// uniform is a external variable that is set by the application
 uniform float iTime;
 uniform vec2 iResolution;
 

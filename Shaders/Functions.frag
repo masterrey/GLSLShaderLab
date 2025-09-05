@@ -3,66 +3,55 @@ out vec4 FragColor;
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
-uniform int iMouseClick;  // 1 quando o mouse esta clicado, 0 quando nao
+uniform float iMouseClick;
 
-// Input buffers (iChannels)
-uniform sampler2D iChannel0;
-uniform sampler2D iChannel1;
-uniform sampler2D iChannel2;
-uniform sampler2D iChannel3;
-
-// Function to draw circle with smooth border
 vec4 DrawCircle(vec2 uv, vec3 color, vec2 pos, float radius, float edge) {
-    vec2 posn = pos / iResolution.xy;
+    vec2 posn = pos / iResolution;
     float dist = distance(uv, posn);
     float alpha = smoothstep(radius, radius - edge, dist);
     return vec4(color, alpha);
 }
 
-// Function to apply feedback using previous buffers
-vec4 ApplyFeedback(vec2 uv, vec4 currentColor) {
-    // Read previous frame from iChannel0
-    vec4 previousFrame = texture(iChannel0, uv);
-    
-    // Apply small displacement to create trails
-    vec2 offset = vec2(sin(iTime * 0.5) * 0.001, cos(iTime * 0.3) * 0.001);
-    vec4 feedbackColor = texture(iChannel0, uv + offset);
-    
-    // Mix current frame with feedback, creating trails
-    return mix(currentColor, feedbackColor * 0.95, 0.3);
+vec4 DrawSquare(vec2 uv, vec3 color, vec2 pos, float size, float edge) {
+    vec2 posn = pos / iResolution;
+    vec2 diff = abs(uv - posn);
+    vec2 dist = diff - vec2(size);
+    float alpha = 1.0 - smoothstep(0.0, edge, max(dist.x, dist.y));
+    return vec4(color, alpha);
 }
 
-void main()
-{
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec2 mouseNorm = iMouse.xy / iResolution.xy;
-    
-    // Animated base color
-    vec3 baseColor = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0,2,4));
-    
-    // Draw circle at mouse position only when clicking
-    vec4 circle = vec4(0.0);
-    if (iMouseClick == 1) {
-        circle = DrawCircle(uv, vec3(0.0, 0.0, 1.0), iMouse.xy, 0.1, 0.01);
+vec4 DrawTriangle(vec2 uv, vec3 color, vec2 pos, float size, float edge) {
+    vec2 posn = pos / iResolution;
+    vec2 p = uv - posn;
+    float k = sqrt(3.0);
+    p.x = abs(p.x) * 2.0;
+    p.y = p.y + size / k;
+    float d = max(p.x * 0.5 + k * p.y, -k * p.y);
+    float alpha = 1.0 - smoothstep(size * 0.5, size * 0.5 + edge, d);
+    return vec4(color, alpha);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / iResolution;
+    vec3 baseColor = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0.0, 2.0, 4.0));
+    vec4 shape = vec4(0.0);
+
+    // so desenha forma se mouse estiver clicado
+    if (iMouseClick > 0.5) {
+        // dividir a tela em 3 áreas verticais iguais
+        float areaWidth = iResolution.x / 3.0;
+
+        if (iMouse.x < areaWidth) {
+            // area 1: círculo azul
+            shape = DrawCircle(uv, vec3(0.0, 0.0, 1.0), iMouse, 0.1, 0.01);
+        } else if (iMouse.x < 2.0 * areaWidth) {
+            // area 2: quadrado verde
+            shape = DrawSquare(uv, vec3(0.0, 1.0, 0.0), iMouse, 0.1, 0.01);
+        } else {
+            // area 3: triangulo vermelho
+            shape = DrawTriangle(uv, vec3(1.0, 0.0, 0.0), iMouse, 0.1, 0.01);
+        }
     }
-    
-    // Current color without feedback
-    vec4 currentColor = mix(vec4(baseColor, 1.0), circle, circle.a);
-    
-    // Apply feedback using previous buffers
-    vec4 finalColor = ApplyFeedback(uv, currentColor);
-    
-    // Example usage of other channels
-    // iChannel1 can be used for additional textures
-    vec4 texture1 = texture(iChannel1, uv * 2.0);
-    
-    // iChannel2 can be used for noise or other effects
-    vec4 texture2 = texture(iChannel2, uv + iTime * 0.1);
-    
-    // Subtle mix of additional channels
-    finalColor.rgb += texture1.rgb * 0.1 + texture2.rgb * 0.05;
-    
-    FragColor = finalColor;
+
+    FragColor = mix(vec4(baseColor, 1.0), shape, shape.a);
 }
-
-
