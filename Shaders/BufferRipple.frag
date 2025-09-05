@@ -1,5 +1,6 @@
 #version 330 core
 out vec4 FragColor;
+ 
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
@@ -13,23 +14,45 @@ float ripple(vec2 uv, vec2 center, float time)
     return ripple;
 }
  
+float getWaterHeight(vec2 uv, vec2 center, float time)
+{
+    float total = 0.0;
+    for (int i = 0; i < 5; i++)
+    {
+        float t = time * 1.5 - float(i) * 1.0;
+        total += ripple(uv, center, t);
+    }
+    return total;
+}
+ 
 void main()
 {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
-    vec3 color = vec3(0.2, 0.5, 0.8); // Fundo azul
  
-    if(iMouseClick > 0)
+    vec3 baseColor = vec3(0.2, 0.5, 0.8);
+    vec3 color = baseColor;
+ 
+    if (iMouseClick > 0)
     {
-        float totalRipples = 0.0;
         vec2 center = iMouse.xy / iResolution.xy;
  
-        for (int i = 0; i < 5; i++)
-        {
-            float t = iTime * 1.5 - float(i) * 1.0;
-            totalRipples += ripple(uv, center, t);
-        }
+        float h = getWaterHeight(uv, center, iTime);
  
-        color += vec3(1.0, 1.0, 1.0) * totalRipples;
+        float dx = getWaterHeight(uv + vec2(1.0 / iResolution.x, 0.0), center, iTime) - h;
+        float dy = getWaterHeight(uv + vec2(0.0, 1.0 / iResolution.y), center, iTime) - h;
+ 
+        vec3 normal = normalize(vec3(-dx, 0.2, -dy));
+ 
+        vec2 distortion = vec2(dx, dy);
+        vec2 distortedUV = uv + 0.05 * distortion;
+ 
+        vec3 distortedColor = baseColor + 0.1 * vec3(distortion.x, distortion.y, 0.0);
+ 
+        vec3 lightDir = normalize(vec3(-3.0, 10.0, 3.0));
+        float light = pow(max(0.0, dot(normal, lightDir)), 60.0);
+ 
+        color = mix(color, distortedColor, 0.5);
+        color += vec3(1.0) * light;
     }
  
     FragColor = vec4(color, 1.0);
