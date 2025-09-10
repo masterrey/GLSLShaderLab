@@ -1,5 +1,6 @@
 #version 330 core
 out vec4 FragColor;
+
 uniform vec2  iResolution;
 uniform vec2  iMouse;
 uniform int   iMouseClick;
@@ -44,10 +45,8 @@ void main() {
         float a = softCircle(uv, mouse, 0.05);
         vec3 paint = vec3(1.0, 0.5, 0.0);
         color = mix(color, paint, a);
-   
-    FragColor = vec4(color, 1.0);
-}
+    }
 
+    
     FragColor = vec4(color.rg, center.x, center.y);
 }
-
