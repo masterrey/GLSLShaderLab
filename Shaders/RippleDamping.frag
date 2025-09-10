@@ -3,12 +3,11 @@ out vec4 FragColor;
 
 uniform vec2  iResolution;
 uniform vec2  iMouse;       
-uniform float   iMouseClick;  
+uniform float iMouseClick;  
 uniform sampler2D iChannel0; 
 uniform float iTime;
 
 const float SCALE  = 1.003;
-const float RADIUS = 0.02; 
 const float EDGE   = 0.01; 
 
 float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
@@ -18,9 +17,8 @@ float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
 
 void main() {
     vec2 uvN = gl_FragCoord.xy / iResolution.xy;
-
-    //vec2 center = vec2(0.5, 0.5);
     vec2 center = iMouse / iResolution;
+
     float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
     vec2 scaledUV = center + (uvN - center) * invScale;
 
@@ -31,10 +29,14 @@ void main() {
     float inside = ok.x * ok.y;
     vec3 color = mix(colUnscaled, colScaled, inside);
 
+    // Diminuir o tamanho do ripple ao longo do tempo
+    float rippleDuration = 1.0; // tempo em segundos para desaparecer
+    float timeSinceClick = mod(iTime, rippleDuration);
+    float radius = mix(0.02, 0.0, timeSinceClick / rippleDuration);
+
     if (iMouseClick == 1) {
-        vec2 mN = iMouse / iResolution;
-        float a = softCircle(uvN, mN, RADIUS, EDGE);
-        vec3 paint = 0.5 + 0.5 * cos(iTime + uvN.xyx + vec3(0,2,4));
+        float a = softCircle(uvN, center, radius, EDGE);
+        vec3 paint = 0.5 + 0.5 * cos(iTime + uvN.xyx + vec3(0, 2, 4));
         color = mix(color, paint, a);
     }
 

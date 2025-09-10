@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 uniform vec2  iResolution;
 uniform vec2  iMouse;       
-uniform float   iMouseClick;  
+uniform float iMouseClick;  
 uniform sampler2D iChannel0; 
 uniform float iTime;
 
@@ -19,7 +19,9 @@ float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
 void main() {
     vec2 uvN = gl_FragCoord.xy / iResolution.xy;
 
-    //vec2 center = vec2(0.5, 0.5);
+    // Espelhando horizontalmente (em torno do centro 0.5)
+    if (uvN.x > 0.5) uvN.x = 1.0 - uvN.x;
+
     vec2 center = iMouse / iResolution;
     float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
     vec2 scaledUV = center + (uvN - center) * invScale;
@@ -32,8 +34,7 @@ void main() {
     vec3 color = mix(colUnscaled, colScaled, inside);
 
     if (iMouseClick == 1) {
-        vec2 mN = iMouse / iResolution;
-        float a = softCircle(uvN, mN, RADIUS, EDGE);
+        float a = softCircle(uvN, center, RADIUS, EDGE);
         vec3 paint = 0.5 + 0.5 * cos(iTime + uvN.xyx + vec3(0,2,4));
         color = mix(color, paint, a);
     }
