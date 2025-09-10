@@ -25,7 +25,7 @@ void main() {
     vec2 center = iMouse / iResolution;
     // IMPORTANT: use inverse scale for zoom-in (expand outward)
     float invScale = 1.0 / SCALE;
-    vec2 scaledUV = center + (uvN - center) * invScale;
+    vec2 scaledUV = center + (uvN - center) * SCALE;
 
     // sample both: scaled and unscaled
     vec3 colScaled   = texture(iChannel0, clamp(scaledUV, 0.0, 1.0)).rgb;
