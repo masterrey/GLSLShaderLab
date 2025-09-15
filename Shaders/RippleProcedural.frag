@@ -1,41 +1,39 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform vec2  iResolution;
-uniform vec2  iMouse;       
-uniform float iMouseClick;  
-uniform sampler2D iChannel0; 
+uniform vec2 iResolution;
+uniform vec2 iMouse;
+uniform float iMouseClick;
 uniform float iTime;
 
-const float SCALE  = 1.003;
-const float RADIUS = 0.02; 
-const float EDGE   = 0.01; 
+// Fundo procedural simples, tipo ondas suaves 
+vec3 proceduralBackground(vec2 uv) {
+    float wave = 0.5 + 0.5 * sin(10.0 * uv.x + iTime * 0.5) * cos(10.0 * uv.y + iTime * 0.5);
+    return mix(vec3(0.1, 0.15, 0.3), vec3(0.3, 0.45, 0.7), wave);
+}
 
-float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
-    float d = distance(uvN, centerN);
-    return 1.0 - smoothstep(r - edge, r, d);
+float circleMask(vec2 uv, vec2 center, float radius, float edge) {
+    float d = distance(uv, center);
+    return 1.0 - smoothstep(radius - edge, radius, d);
 }
 
 void main() {
-    vec2 uvN = gl_FragCoord.xy / iResolution.xy;
-    vec2 center = iMouse / iResolution;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec3 color = proceduralBackground(uv);
 
-    float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
-    vec2 scaledUV = center + (uvN - center) * invScale;
+    if(iMouseClick > 0.5) {
+        vec2 mouseUV = iMouse / iResolution;
+        float mask = circleMask(uv, mouseUV, 0.1, 0.02);
+        if(mask > 0.0) {
+            float dist = distance(uv, mouseUV);
+            float ripple = 0.05 * sin(40.0 * dist - iTime * 5.0) * mask; // velocidade e intensidade menores
 
-    // Fundo procedural original
-    vec3 procBg = 0.5 + 0.5 * cos(iTime + uvN.xyx * 10.0 + vec3(0, 2, 4));
+            vec2 dir = normalize(uv - mouseUV);
+            vec2 rippleUV = uv + dir * ripple;
 
-    // Fundo procedural deformado pelo ripple (usando scaledUV)
-    vec3 procBgRippled = 0.5 + 0.5 * cos(iTime + scaledUV.xyx * 10.0 + vec3(0, 2, 4));
-
-    float rippleArea = 0.0;
-    if (iMouseClick == 1) {
-        rippleArea = softCircle(uvN, center, RADIUS, EDGE);
+            color = proceduralBackground(rippleUV);
+        }
     }
-
-    // Mistura entre o fundo normal e o deformado pelo ripple
-    vec3 color = mix(procBg, procBgRippled, rippleArea);
 
     FragColor = vec4(color, 1.0);
 }
