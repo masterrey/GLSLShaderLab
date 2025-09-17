@@ -1,5 +1,6 @@
 #version 330 core
 out vec4 FragColor;
+
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
@@ -34,7 +35,3 @@ void main()
         float mouseDist = distance(uv, mouse);
         float mouseIndicator = 1.0 - smoothstep(0.002, 0.005, mouseDist);
         color = mix(color, vec3(0.0, 1.0, 1.0), mouseIndicator * 0.8);
-    }
-    
-    FragColor = vec4(color, 1.0);
-}

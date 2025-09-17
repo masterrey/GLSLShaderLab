@@ -19,6 +19,7 @@ float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
 void main() {
     vec2 uvN = gl_FragCoord.xy / iResolution.xy;
 
+
     //vec2 center = vec2(0.5, 0.5);
     vec2 center = iMouse / iResolution;
     float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
@@ -39,4 +40,4 @@ void main() {
     }
 
     FragColor = vec4(color, 1.0);
-}
+
