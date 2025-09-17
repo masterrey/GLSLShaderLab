@@ -5,7 +5,6 @@ uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
 uniform float iMouseClick;
-
 uniform float iClickCount;
 
 float CircleDist(vec2 uv, vec2 pos) {
@@ -78,7 +77,7 @@ void main()
     float outline = smoothstep(edge + outlineWidth, edge, dist) - smoothstep(edge, edge - 0.005, dist);
 
     vec3 outlineColor = vec3(0.0);
-    
+
     vec3 color = baseColor;
     color = mix(color, outlineColor, outline);
     color = mix(color, shapeColor, alpha);

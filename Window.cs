@@ -34,7 +34,8 @@ namespace GLSLShaderLab
             _selectedShader = selectedShader;
 
             var selector = new ShaderSelector();
-            _availableShaders = selector.GetAvailableShaders();
+            _availableShaders = selector.GetAvailableShaders();}
+
         // Camera properties
         private Vector3 _cameraPos = new Vector3(0.0f, 0.0f, 3.0f);
         private Vector3 _cameraFront = new Vector3(0.0f, 0.0f, -1.0f);
@@ -151,6 +152,14 @@ namespace GLSLShaderLab
             catch (Exception ex) { Console.WriteLine($"Erro ao carregar shader {shaderInfo.Name}: {ex.Message}"); }
         }
 
+        private void SetCommonUniforms(Shader shader)
+        {
+            shader.SetFloat("iTime", _time);
+            shader.SetVector2("iResolution", new Vector2(Size.X, Size.Y));
+            shader.SetVector2("iMouse", new Vector2(MouseState.X, Size.Y - MouseState.Y));
+            shader.SetInt("iMouseClick", MouseState.IsButtonDown(MouseButton.Left) ? 1 : 0);
+            shader.SetVector3("viewPos", _cameraPos);
+        }
         private void LoadModel(ModelSelector.ModelInfo modelInfo)
         {
             try
@@ -293,20 +302,15 @@ namespace GLSLShaderLab
                     if (_useBuffers)
                         RenderWithBuffers3D();
                     else
-                        RenderDirect();
-                }
-
-                if (_renderMode == RenderMode.Fullscreen2D)
-                    RenderDirect();
-                else
-                {
-                    var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_rotationY));
-                    var view = Matrix4.LookAt(_cameraPos, _cameraPos + _cameraFront, _cameraUp);
-                    var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_fov), Size.X / (float)Size.Y, 0.1f, 100.0f);
-                    _shader.SetMatrix4("model", model);
-                    _shader.SetMatrix4("view", view);
-                    _shader.SetMatrix4("projection", projection);
-                    _model?.Render();
+                        {
+                        var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_rotationY));
+                        var view = Matrix4.LookAt(_cameraPos, _cameraPos + _cameraFront, _cameraUp);
+                        var projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_fov), Size.X / (float)Size.Y, 0.1f, 100.0f);
+                        _shader.SetMatrix4("model", model);
+                        _shader.SetMatrix4("view", view);
+                        _shader.SetMatrix4("projection", projection);
+                        _model?.Render();
+                    }
                 }
             }
 

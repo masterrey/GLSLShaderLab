@@ -2,12 +2,13 @@
 out vec4 FragColor;
 uniform float iTime;
 uniform vec2 iResolution;
+in vec2 TexCoord;
 
 void main()
 {
     // convert from pixel coordinates to normalized coordinates
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
-
+    //vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    vec2 uv = TexCoord;
     // calculate the aspect ratio
     float prop=iResolution.x/ iResolution.y;
     
