@@ -24,6 +24,17 @@ namespace GLSLShaderLab
         private BufferManager _bufferManager;
         private bool _useBuffers = false;
 
+
+        private int _clickCount = 0;          
+        private bool _wasMouseDown = false;   
+
+        public Window(int width, int height, string title, ShaderSelector.ShaderInfo selectedShader)
+            : base(GameWindowSettings.Default, new NativeWindowSettings() { Size = new Vector2i(width, height), Title = $"{title} - {selectedShader.Name}" })
+        {
+            _selectedShader = selectedShader;
+
+            var selector = new ShaderSelector();
+            _availableShaders = selector.GetAvailableShaders();
         // Camera properties
         private Vector3 _cameraPos = new Vector3(0.0f, 0.0f, 3.0f);
         private Vector3 _cameraFront = new Vector3(0.0f, 0.0f, -1.0f);
@@ -111,28 +122,6 @@ namespace GLSLShaderLab
             catch (Exception ex) { Console.WriteLine($"Erro ao carregar copy shader: {ex.Message}"); }
 
             LoadShader(_selectedShader);
-            LoadModel(_selectedModel);
-
-            Console.WriteLine("Controles:");
-            Console.WriteLine(" WASD : Mover câmera");
-            Console.WriteLine(" Mouse : Olhar ao redor");
-            Console.WriteLine(" Scroll : Zoom");
-            Console.WriteLine(" Q/E : Trocar shaders");
-            Console.WriteLine(" Z/X : Trocar modelos");
-            Console.WriteLine(" R   : Resetar câmera");
-            Console.WriteLine(" B   : Toggle buffer system (iChannels)");
-            Console.WriteLine(" M   : Alternar modo 2D/3D");
-            Console.WriteLine(" H   : Mostrar/ocultar ajuda");
-            Console.WriteLine(" ESC : Sair");
-        }
-
-        private void SetCommonUniforms(Shader shader)
-        {
-            shader.SetFloat("iTime", _time);
-            shader.SetVector2("iResolution", new Vector2(Size.X, Size.Y));
-            shader.SetVector2("iMouse", new Vector2(MouseState.X, Size.Y - MouseState.Y));
-            shader.SetInt("iMouseClick", MouseState.IsButtonDown(MouseButton.Left) ? 1 : 0);
-            shader.SetVector3("viewPos", _cameraPos);
         }
 
         private void LoadShader(ShaderSelector.ShaderInfo shaderInfo)
@@ -147,7 +136,8 @@ namespace GLSLShaderLab
                     shaderInfo.Name.Contains("BufferDemo") ||
                     shaderInfo.Name.Contains("BufferTest") ||
                     shaderInfo.Name.Contains("SimplePaint") ||
-                    shaderInfo.Name.Contains("Functions"))
+                    shaderInfo.Name.Contains("Functions") ||
+                    shaderInfo.Name.Contains("Ripple"))
                 {
                     if (!_useBuffers)
                     {
@@ -189,6 +179,24 @@ namespace GLSLShaderLab
                 case Keys.Escape:
                     Close();
                     break;
+
+
+                case Keys.Left:
+                    if (_availableShaders.Count > 1)
+                    {
+                        _currentShaderIndex = (_currentShaderIndex - 1 + _availableShaders.Count) % _availableShaders.Count;
+                        LoadShader(_availableShaders[_currentShaderIndex]);
+                    }
+                    break;
+
+                case Keys.Right:
+                    if (_availableShaders.Count > 1)
+                    {
+                        _currentShaderIndex = (_currentShaderIndex + 1) % _availableShaders.Count;
+                        LoadShader(_availableShaders[_currentShaderIndex]);
+                    }
+                    break;
+
                 case Keys.M:
                     _renderMode = _renderMode == RenderMode.Fullscreen2D ? RenderMode.Model3D : RenderMode.Fullscreen2D;
                     Console.WriteLine("Render mode: " + _renderMode);
@@ -232,6 +240,7 @@ namespace GLSLShaderLab
                     _useBuffers = !_useBuffers;
                     Console.WriteLine("Buffer system: " + (_useBuffers ? "ON" : "OFF"));
                     break;
+
                 case Keys.H:
                     // Alternar exibição de ajuda
                     _showHelp = !_showHelp;
@@ -243,6 +252,14 @@ namespace GLSLShaderLab
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
+
+
+            bool isMouseDown = MouseState.IsButtonDown(MouseButton.Left);
+            if (isMouseDown && !_wasMouseDown)
+            {
+                _clickCount++;
+            }
+            _wasMouseDown = isMouseDown;
             var input = KeyboardState;
             var speed = 2.5f * (float)args.Time;
             if (input.IsKeyDown(Keys.W)) _cameraPos += _cameraFront * speed;
@@ -250,6 +267,7 @@ namespace GLSLShaderLab
             if (input.IsKeyDown(Keys.A)) _cameraPos -= Vector3.Normalize(Vector3.Cross(_cameraFront, _cameraUp)) * speed;
             if (input.IsKeyDown(Keys.D)) _cameraPos += Vector3.Normalize(Vector3.Cross(_cameraFront, _cameraUp)) * speed;
             _rotationY += (float)args.Time * 30.0f;
+
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -299,7 +317,13 @@ namespace GLSLShaderLab
             _bufferManager.BindCurrentBufferForWriting();
 
             _shader?.Use();
+            _shader?.SetFloat("iTime", _time);
+            _shader?.SetVector2("iResolution", new Vector2(Size.X, Size.Y));
+            _shader?.SetVector2("iMouse", new Vector2(MouseState.X, Size.Y - MouseState.Y));
+            _shader?.SetFloat("iMouseClick", MouseState.IsButtonDown(MouseButton.Left) ? 1 : 0);
+            _shader?.SetFloat("iClickCount", (float)_clickCount);  // Passa o número de cliques para o shader
             SetCommonUniforms(_shader);
+
 
             // Bind previous frame como iChannel0
             _bufferManager.BindBuffersForReading(_shader);
