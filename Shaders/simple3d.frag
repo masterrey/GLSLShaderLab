@@ -10,7 +10,13 @@ uniform float iTime;
 uniform vec2 iResolution;
 uniform vec3 viewPos;
 
+vec3 lightDir = vec3(0.2,-1.0,-0.2);
+float ambient = 0.2;
+
 void main()
 { 
-    FragColor = vec4(1.0,1.0,1.0,1.0);
+    //dot product of normal and light direction to get brightness
+    // clamp between 0 and 1
+    float brightness = clamp(dot(Normal, -lightDir),0.0,0.1);
+    FragColor = vec4(1.0,1.0,1.0,1.0) * (brightness + ambient);
 }
