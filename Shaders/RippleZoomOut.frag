@@ -3,7 +3,7 @@ out vec4 FragColor;
 
 uniform vec2 iResolution;
 uniform vec2 iMouse;
-uniform float iMouseClick;
+uniform int iMouseClick;
 uniform sampler2D iChannel0;
 uniform float iTime;
 
@@ -38,3 +38,4 @@ void main() {
 
     FragColor = vec4(color, 1.0);
 }
+

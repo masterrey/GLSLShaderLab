@@ -2,42 +2,48 @@
 out vec4 FragColor;
 
 uniform vec2  iResolution;
-uniform vec2  iMouse;       
-uniform float iMouseClick;  
-uniform sampler2D iChannel0; 
+uniform vec2  iMouse;
+uniform int   iMouseClick;
+uniform sampler2D iChannel0;
 uniform float iTime;
 
-const float SCALE  = 1.003;
-const float RADIUS = 0.02; 
-const float EDGE   = 0.01; 
+const float SCALE  = 1.001;
+const float RADIUS = 0.03;
+const float EDGE   = 0.02;
 
-float softCircle(vec2 uvN, vec2 centerN, float r, float edge) {
-    float d = distance(uvN, centerN);
-    return 1.0 - smoothstep(r - edge, r, d);
+float softCircle(vec2 uv, vec2 center, float radius, float edge) {
+    float d = distance(uv, center);
+    return 1.0 - smoothstep(radius - edge, radius, d);
+}
+
+vec2 mirrorX(vec2 uv) {
+    return vec2(abs(uv.x - 0.5) + 0.5, uv.y);
 }
 
 void main() {
-    vec2 uvN = gl_FragCoord.xy / iResolution.xy;
-
-    // Espelhando horizontalmente (em torno do centro 0.5)
-    if (uvN.x > 0.5) uvN.x = 1.0 - uvN.x;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
 
     vec2 center = iMouse / iResolution;
-    float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
-    vec2 scaledUV = center + (uvN - center) * invScale;
+    vec2 uvMirrored = mirrorX(uv);
+    vec2 centerMirrored = mirrorX(center);
 
-    vec3 colScaled   = texture(iChannel0, clamp(scaledUV, 0.0, 1.0)).rgb;
-    vec3 colUnscaled = texture(iChannel0, uvN).rgb;
+    float invScale = 1.0 / SCALE;
+    vec2 zoomedUV = centerMirrored + (uvMirrored - centerMirrored) * invScale;
 
-    vec2 ok = step(vec2(0.0), scaledUV) * step(scaledUV, vec2(1.0));
-    float inside = ok.x * ok.y;
-    vec3 color = mix(colUnscaled, colScaled, inside);
+    vec3 col = texture(iChannel0, clamp(zoomedUV, 0.0, 1.0)).rgb;
 
     if (iMouseClick == 1) {
-        float a = softCircle(uvN, center, RADIUS, EDGE);
-        vec3 paint = 0.5 + 0.5 * cos(iTime + uvN.xyx + vec3(0,2,4));
-        color = mix(color, paint, a);
+        vec2 m = iMouse / iResolution;
+        vec2 mMirror = mirrorX(m);
+
+        // Agora pintamos em ambos os lados:
+        float a1 = softCircle(uv, m, RADIUS, EDGE);
+        float a2 = softCircle(uv, mMirror, RADIUS, EDGE);
+        float a = max(a1, a2);
+
+        vec3 paint = 0.5 + 0.5 * cos(iTime + uv.xyx + vec3(0,2,4));
+        col = mix(col, paint, a);
     }
 
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(col, 1.0);
 }
