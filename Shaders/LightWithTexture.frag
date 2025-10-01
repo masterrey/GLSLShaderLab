@@ -9,18 +9,22 @@ in vec3 WorldPos;
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec3 viewPos;
-uniform sampler2D texture2; 
-uniform sampler2D texture3;
+uniform sampler2D texture0; 
+uniform sampler2D texture1;
 
-vec3 lightDir = vec3(0.2,-1.0,-0.2);
+vec3 lightDir = vec3(0.2, -1.0, -0.2);
 float ambient = 0.2;
 
 void main()
 {
-    float brightness = clamp(dot(Normal, -lightDir), 0.0, 1.0);
-    vec4 texColor = texture(texture2, TexCoord); // <- usa texture1
-    vec4 texColor1 = texture(texture3, TexCoord);
+    float brightness = clamp(dot(normalize(Normal), normalize(-lightDir)), 0.0, 1.0);
 
-    FragColor = texColor * (brightness + ambient);
-    FragColor = mix(texColor, texColor1, 1 - cos(iTime)) * (brightness + ambient);
+    vec4 texColorLight = texture(texture0, TexCoord); 
+    vec4 texColorDark = texture(texture1, TexCoord);
+
+    vec4 finalColor = mix(texColorDark, texColorLight, brightness);
+
+    finalColor *= (brightness + ambient);
+
+    FragColor = finalColor;
 }
