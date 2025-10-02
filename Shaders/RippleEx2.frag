@@ -7,7 +7,7 @@ uniform int   iMouseClick;   // 0 or 1
 uniform sampler2D iChannel0; // previous frame
 uniform float iTime;
 // params
-const float SCALE  = 1.0001;  // >1.0 = expand outward (zoom-in)
+const float SCALE  = 1.003;  // >1.0 = expand outward (zoom-in)
 const float RADIUS = 0.02;   // brush radius (normalized)
 const float EDGE   = 0.01;   // brush soft edge (normalized)
 
@@ -22,12 +22,10 @@ void main() {
 
     // fixed center (stable). If you want from mouse: center = iMouse / iResolution;
     //vec2 center = vec2(0.5, 0.5);
-    vec2 center = (iMouse / iResolution);
+    vec2 center = iMouse / iResolution;
     // IMPORTANT: use inverse scale for zoom-in (expand outward)
-
-    float invScale = 1.0 / SCALE;
-    vec2 scaledUV = center + (uvN - center) * SCALE;
-E
+    float invScale = 1.0 / SCALE + cos(iTime * 100.0) * 0.001;
+    vec2 scaledUV = center + (uvN - center) * invScale;
 
     // sample both: scaled and unscaled
     vec3 colScaled   = texture(iChannel0, clamp(scaledUV, 0.0, 1.0)).rgb;
@@ -46,5 +44,7 @@ E
         color = mix(color, paint, a);
     }
 
+    color *= 0.99;
+    
     FragColor = vec4(color, 1.0);
 }
