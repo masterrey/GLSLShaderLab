@@ -25,5 +25,5 @@ void main()
  
     FragColor = texColor * (brightness + ambient);
  
-    FragColor = mix(texColor, texColor1, 1 - cos(iTime) * 0.5) * (brightness + ambient);
+    FragColor = mix(texColor, texColor1, 1 - cos(brightness) * 0.5) * (brightness + ambient);
 }
