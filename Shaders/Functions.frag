@@ -1,5 +1,3 @@
-#version 330 core
-out vec4 FragColor;
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iMouse;
@@ -34,6 +32,3 @@ void main()
     vec3 trailColor = vec3(0.0, 0.0, trail);
     FragColor = vec4(baseColor + trailColor, 1.0);
 }
-
-
-
