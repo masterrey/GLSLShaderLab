@@ -1,6 +1,8 @@
 #version 330 core
 out vec4 FragColor;
 
+// uniform is a external variable that is set by the application
+
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;

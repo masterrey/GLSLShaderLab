@@ -16,15 +16,15 @@ void main()
     //horizontal lines 
     if(uv.y > (0.1*wave+0.2)){
         
-        fragColor = vec4(0.7,0,0,0) * fs;
+        fragColor = vec4(1.0, 1.0, 1.0, 1.0) * fs;
     } 
     if(uv.y > (0.1* wave + 0.4)){
         
-        fragColor = vec4(0.7,0.4,0,0) * fs;
+        fragColor = vec4(0.05, 0.05, 0.05, 1.0) * fs;
     } 
     if(uv.y > (0.1 * wave + 0.7)){
         
-        fragColor = vec4(0.5) * fs;
+        fragColor = vec4(0.0, 0.333, 0.8, 1.0) * fs * 0.35;
     } 
      //corte vertical
     if(uv.y < (0.1 * wave + 0.2)){
