@@ -38,6 +38,30 @@ Documentação do fluxo antigo: [`legacy/README.md`](legacy/README.md)
 - **Core**: `src/GLSLShaderLab.Core`  
   Modelos de documento, templates e persistência de sessão.
 
+## Próximos passos (guia para agentes)
+
+Use esta seção como referência direta para continuar a evolução do Studio.
+
+### Status atual (já concluído)
+
+- Fullscreen mostra apenas a área de render (preview).
+- Botão **Save** pede confirmação antes de sobrescrever.
+- Tecla **ESC** sai do fullscreen.
+
+### Passo 2 (próxima entrega sugerida)
+
+- Consolidar UX do Studio com foco em fluxo de edição + preview.
+- Revisar atalhos de teclado essenciais e documentar no README.
+- Garantir feedback visual claro para ações de arquivo (open/save/save as).
+- Validar com `dotnet build GLSLShaderLab.sln` e `dotnet test GLSLShaderLab.sln`.
+
+### Regra para próximos passos
+
+- Ao finalizar cada etapa, atualize esta seção com:
+  - o que foi concluído;
+  - qual é o próximo passo objetivo;
+  - como validar rapidamente.
+
 ## Estrutura do repositório
 
 - `src/` → stack nova (**Studio**)
