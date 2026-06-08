@@ -429,7 +429,7 @@ public partial class MainWindow : Window
     {
         if (confirmOverwrite && File.Exists(path))
         {
-            var answer = MessageBox.Show(
+            var answer = System.Windows.MessageBox.Show(
                 this,
                 $"O arquivo \"{Path.GetFileName(path)}\" já existe. Deseja sobrescrever?",
                 "Confirmar sobrescrita",
