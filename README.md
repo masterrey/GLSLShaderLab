@@ -2,6 +2,31 @@
 
 Um laboratório interativo para experimentar com shaders GLSL em modelos 3D, perfeito para estudantes aprenderem programação de shaders com renderização tridimensional.
 
+## 🧪 GLSLShaderLab Studio (WPF / Windows)
+
+Foi adicionado um novo app **Windows-only com WPF** em `/tmp/workspace/masterrey/GLSLShaderLab/src` com foco em experiência estilo ShaderToy:
+
+- `GLSLShaderLab.App.Wpf` → shell UI (editor textual + preview + diagnósticos)
+- `GLSLShaderLab.Engine` → render 2D fullscreen quad, compile/reload e iChannels
+- `GLSLShaderLab.Core` → documento de shader, templates e persistência de sessão
+
+### Executar Studio
+
+```bash
+dotnet run --project src/GLSLShaderLab.App.Wpf/GLSLShaderLab.App.Wpf.csproj
+```
+
+### Recursos implementados no Studio (MVP)
+
+- Editor textual GLSL com auto-compile (debounce)
+- Preview 2D em tempo real com uniforms estilo ShaderToy:
+  - `iTime`, `iResolution`, `iMouse`, `iMouseClick`, `iChannel0..3`
+- Modo janela/fullscreen
+- Templates iniciais (Empty, Feedback, Noise)
+- Carregamento de texturas para `iChannel0..3`
+- Painel de diagnóstico de compilação
+- Gancho de modo **3D avançado** (placeholder para evolução)
+
 ## 🚀 Como Usar
 
 1. **Execute o programa**dotnet run

@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GLSLShaderLab.App.Wpf/GLSLShaderLab.App.Wpf.csproj" />
+    <Project Path="src/GLSLShaderLab.Core/GLSLShaderLab.Core.csproj" />
+    <Project Path="src/GLSLShaderLab.Engine/GLSLShaderLab.Engine.csproj" />
+  </Folder>
+</Solution>
