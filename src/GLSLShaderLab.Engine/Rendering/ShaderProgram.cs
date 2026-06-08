@@ -19,6 +19,7 @@ internal sealed class ShaderProgram : IDisposable
         int vertex = 0;
         int fragment = 0;
         int program = 0;
+        bool linkedSuccessfully = false;
 
         try
         {
@@ -53,6 +54,8 @@ internal sealed class ShaderProgram : IDisposable
                 return (null, new ShaderCompileMessage(false, string.IsNullOrWhiteSpace(log) ? "Unknown shader link error." : log, "link"));
             }
 
+            linkedSuccessfully = true;
+
             return (new ShaderProgram(program), new ShaderCompileMessage(true, "Shader compiled successfully."));
         }
         catch (Exception ex)
@@ -73,7 +76,7 @@ internal sealed class ShaderProgram : IDisposable
                 GL.DeleteShader(fragment);
             }
 
-            if (program != 0 && GL.IsProgram(program) && GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var linked) != 0 && linked == 0)
+            if (program != 0 && !linkedSuccessfully)
             {
                 GL.DeleteProgram(program);
             }

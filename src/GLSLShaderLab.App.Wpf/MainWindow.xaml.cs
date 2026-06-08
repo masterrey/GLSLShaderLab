@@ -7,9 +7,7 @@ using System.Windows.Threading;
 using GLSLShaderLab.Core.Models;
 using GLSLShaderLab.Core.Services;
 using GLSLShaderLab.Engine.Services;
-using Microsoft.Win32;
-using OpenTK.Windowing.Common;
-using OpenTK.WinForms;
+using OpenTK.GLControl;
 
 namespace GLSLShaderLab.App.Wpf;
 
@@ -78,9 +76,9 @@ public partial class MainWindow : Window
     {
         var glSettings = new GLControlSettings
         {
-            API = ContextAPI.OpenGL,
+            API = OpenTK.Windowing.Common.ContextAPI.OpenGL,
             APIVersion = new Version(3, 3),
-            Profile = ContextProfile.Core,
+            Profile = OpenTK.Windowing.Common.ContextProfile.Core,
             IsEventDriven = false
         };
 
@@ -302,7 +300,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var dialog = new OpenFileDialog
+        var dialog = new Microsoft.Win32.OpenFileDialog
         {
             Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp;*.tga",
             CheckFileExists = true
