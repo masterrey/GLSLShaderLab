@@ -109,6 +109,13 @@ public partial class MainWindow : Window
 
         _glControl.MouseDown += (_, args) => _renderer.SetMouse(args.X, args.Y, true);
         _glControl.MouseUp += (_, args) => _renderer.SetMouse(args.X, args.Y, false);
+        _glControl.KeyDown += (_, args) =>
+        {
+            if (args.KeyCode == System.Windows.Forms.Keys.Escape)
+            {
+                ExitFullscreenIfActive();
+            }
+        };
 
         PreviewHost.Child = _glControl;
         _glControl.MakeCurrent();
@@ -227,6 +234,18 @@ public partial class MainWindow : Window
 
     private void FullscreenButton_Click(object sender, RoutedEventArgs e)
     {
+        ToggleFullscreen();
+        _document.IsFullscreen = _isFullscreen;
+        _sessionStore.Save(_document);
+    }
+
+    private void ExitFullscreenIfActive()
+    {
+        if (!_isFullscreen)
+        {
+            return;
+        }
+
         ToggleFullscreen();
         _document.IsFullscreen = _isFullscreen;
         _sessionStore.Save(_document);
@@ -367,6 +386,13 @@ public partial class MainWindow : Window
 
     private void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
+        if (e.Key == System.Windows.Input.Key.Escape)
+        {
+            ExitFullscreenIfActive();
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == System.Windows.Input.Key.S &&
             (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
         {
