@@ -12,7 +12,7 @@
         Closing="OnClosing"
         PreviewKeyDown="OnPreviewKeyDown">
     <DockPanel>
-        <ToolBar DockPanel.Dock="Top">
+        <ToolBar Name="MainToolBar" DockPanel.Dock="Top">
             <Button Name="OpenButton" Content="Open..." Click="OpenButton_Click" Margin="2"/>
             <Button Name="SaveButton" Content="Save" Click="SaveButton_Click" Margin="2"/>
             <Button Name="SaveAsButton" Content="Save As..." Click="SaveAsButton_Click" Margin="2"/>
@@ -34,7 +34,7 @@
             <ComboBox Name="TemplateComboBox" Width="160" SelectionChanged="TemplateComboBox_SelectionChanged"/>
         </ToolBar>
 
-        <StatusBar DockPanel.Dock="Bottom">
+        <StatusBar Name="MainStatusBar" DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock Name="StatusTextBlock" Text="Ready"/>
             </StatusBarItem>
@@ -44,17 +44,17 @@
             </StatusBarItem>
         </StatusBar>
 
-        <Grid>
+        <Grid Name="MainContentGrid">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="220"/>
+                <RowDefinition Name="PreviewRowDefinition" Height="*"/>
+                <RowDefinition Name="DiagnosticsRowDefinition" Height="220"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.2*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Name="EditorColumnDefinition" Width="1.2*"/>
+                <ColumnDefinition Name="PreviewColumnDefinition" Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0">
+            <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -73,19 +73,19 @@
                          TextChanged="EditorTextBox_TextChanged"/>
             </Grid>
 
-            <Grid Grid.Row="0" Grid.Column="1">
+            <Grid Name="PreviewPaneGrid" Grid.Row="0" Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Name="PreviewHeaderRowDefinition" Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Name="PreviewChannelsRowDefinition" Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Preview" FontWeight="Bold" Margin="8"/>
-                <Border Grid.Row="1" Margin="8" BorderBrush="#444" BorderThickness="1">
+                <TextBlock Name="PreviewTitleTextBlock" Text="Preview" FontWeight="Bold" Margin="8"/>
+                <Border Name="PreviewBorder" Grid.Row="1" Margin="8" BorderBrush="#444" BorderThickness="1">
                     <wf:WindowsFormsHost Name="PreviewHost"/>
                 </Border>
 
-                <UniformGrid Grid.Row="2" Columns="4" Margin="8" HorizontalAlignment="Stretch">
+                <UniformGrid Name="ChannelButtonsGrid" Grid.Row="2" Columns="4" Margin="8" HorizontalAlignment="Stretch">
                     <Button Content="Load iChannel0" Click="LoadChannel0_Click" Margin="2"/>
                     <Button Content="Load iChannel1" Click="LoadChannel1_Click" Margin="2"/>
                     <Button Content="Load iChannel2" Click="LoadChannel2_Click" Margin="2"/>
@@ -93,7 +93,7 @@
                 </UniformGrid>
             </Grid>
 
-            <GroupBox Header="Diagnostics" Grid.Row="1" Grid.ColumnSpan="2" Margin="8">
+            <GroupBox Name="DiagnosticsGroupBox" Header="Diagnostics" Grid.Row="1" Grid.ColumnSpan="2" Margin="8">
                 <TextBox Name="DiagnosticsTextBox"
                          FontFamily="Consolas"
                          FontSize="12"

@@ -29,6 +29,12 @@ public partial class MainWindow : Window
     private WindowStyle _previousWindowStyle;
     private ResizeMode _previousResizeMode;
     private bool _previousTopmost;
+    private GridLength _previousEditorColumnWidth;
+    private GridLength _previousPreviewColumnWidth;
+    private GridLength _previousDiagnosticsRowHeight;
+    private GridLength _previousPreviewHeaderRowHeight;
+    private GridLength _previousPreviewChannelsRowHeight;
+    private Thickness _previousPreviewBorderMargin;
 
     public MainWindow()
     {
@@ -234,6 +240,26 @@ public partial class MainWindow : Window
             _previousWindowStyle = WindowStyle;
             _previousResizeMode = ResizeMode;
             _previousTopmost = Topmost;
+            _previousEditorColumnWidth = EditorColumnDefinition.Width;
+            _previousPreviewColumnWidth = PreviewColumnDefinition.Width;
+            _previousDiagnosticsRowHeight = DiagnosticsRowDefinition.Height;
+            _previousPreviewHeaderRowHeight = PreviewHeaderRowDefinition.Height;
+            _previousPreviewChannelsRowHeight = PreviewChannelsRowDefinition.Height;
+            _previousPreviewBorderMargin = PreviewBorder.Margin;
+
+            MainToolBar.Visibility = Visibility.Collapsed;
+            MainStatusBar.Visibility = Visibility.Collapsed;
+            EditorPaneGrid.Visibility = Visibility.Collapsed;
+            DiagnosticsGroupBox.Visibility = Visibility.Collapsed;
+            PreviewTitleTextBlock.Visibility = Visibility.Collapsed;
+            ChannelButtonsGrid.Visibility = Visibility.Collapsed;
+
+            EditorColumnDefinition.Width = new GridLength(0);
+            PreviewColumnDefinition.Width = new GridLength(1, GridUnitType.Star);
+            DiagnosticsRowDefinition.Height = new GridLength(0);
+            PreviewHeaderRowDefinition.Height = new GridLength(0);
+            PreviewChannelsRowDefinition.Height = new GridLength(0);
+            PreviewBorder.Margin = new Thickness(0);
 
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
@@ -248,6 +274,21 @@ public partial class MainWindow : Window
         WindowStyle = _previousWindowStyle;
         ResizeMode = _previousResizeMode;
         WindowState = _previousWindowState;
+
+        MainToolBar.Visibility = Visibility.Visible;
+        MainStatusBar.Visibility = Visibility.Visible;
+        EditorPaneGrid.Visibility = Visibility.Visible;
+        DiagnosticsGroupBox.Visibility = Visibility.Visible;
+        PreviewTitleTextBlock.Visibility = Visibility.Visible;
+        ChannelButtonsGrid.Visibility = Visibility.Visible;
+
+        EditorColumnDefinition.Width = _previousEditorColumnWidth;
+        PreviewColumnDefinition.Width = _previousPreviewColumnWidth;
+        DiagnosticsRowDefinition.Height = _previousDiagnosticsRowHeight;
+        PreviewHeaderRowDefinition.Height = _previousPreviewHeaderRowHeight;
+        PreviewChannelsRowDefinition.Height = _previousPreviewChannelsRowHeight;
+        PreviewBorder.Margin = _previousPreviewBorderMargin;
+
         _isFullscreen = false;
         FullscreenButton.Content = "Fullscreen";
     }
@@ -357,7 +398,7 @@ public partial class MainWindow : Window
     {
         if (!string.IsNullOrWhiteSpace(_currentFilePath))
         {
-            SaveToFile(_currentFilePath);
+            SaveToFile(_currentFilePath, confirmOverwrite: true);
         }
         else
         {
@@ -384,8 +425,25 @@ public partial class MainWindow : Window
         SaveToFile(_currentFilePath);
     }
 
-    private void SaveToFile(string path)
+    private void SaveToFile(string path, bool confirmOverwrite = false)
     {
+        if (confirmOverwrite && File.Exists(path))
+        {
+            var answer = MessageBox.Show(
+                this,
+                $"O arquivo \"{Path.GetFileName(path)}\" já existe. Deseja sobrescrever?",
+                "Confirmar sobrescrita",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (answer != MessageBoxResult.Yes)
+            {
+                AppendDiagnostic($"Save canceled: {path}");
+                StatusTextBlock.Text = "Save canceled";
+                return;
+            }
+        }
+
         File.WriteAllText(path, EditorTextBox.Text);
         UpdateTitle();
         AppendDiagnostic($"Saved: {path}");
