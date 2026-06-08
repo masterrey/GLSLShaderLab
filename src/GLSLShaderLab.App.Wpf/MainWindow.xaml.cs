@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
 using GLSLShaderLab.Core.Models;
 using GLSLShaderLab.Core.Services;
@@ -35,6 +37,9 @@ public partial class MainWindow : Window
     private GridLength _previousPreviewHeaderRowHeight;
     private GridLength _previousPreviewChannelsRowHeight;
     private Thickness _previousPreviewBorderMargin;
+    private IReadOnlyList<ModelAsset> _availableModels = Array.Empty<ModelAsset>();
+    private bool _isOrbitingCamera;
+    private System.Drawing.Point _lastMousePosition;
 
     public MainWindow()
     {
@@ -64,9 +69,11 @@ public partial class MainWindow : Window
             TemplateComboBox.Items.Add(template.Name);
         }
 
+        PopulateModelsCombo();
         RenderModeComboBox.SelectedIndex = _document.RenderMode == RenderMode.ThreeD ? 1 : 0;
 
         InitializeGlHost();
+        Update3DControlsState();
         _renderer.SetPaused(_document.IsPaused);
         PlayPauseButton.Content = _document.IsPaused ? "Play" : "Pause";
 
@@ -105,10 +112,44 @@ public partial class MainWindow : Window
         _glControl.MouseMove += (_, args) =>
         {
             _renderer.SetMouse(args.X, args.Y, args.Button == System.Windows.Forms.MouseButtons.Left);
+
+            if (_document.RenderMode == RenderMode.ThreeD && _isOrbitingCamera)
+            {
+                var dx = args.X - _lastMousePosition.X;
+                var dy = args.Y - _lastMousePosition.Y;
+                _renderer.RotateCamera(dx * 0.2f, -dy * 0.2f);
+                _lastMousePosition = new System.Drawing.Point(args.X, args.Y);
+            }
         };
 
-        _glControl.MouseDown += (_, args) => _renderer.SetMouse(args.X, args.Y, true);
-        _glControl.MouseUp += (_, args) => _renderer.SetMouse(args.X, args.Y, false);
+        _glControl.MouseDown += (_, args) =>
+        {
+            _renderer.SetMouse(args.X, args.Y, true);
+            if (_document.RenderMode == RenderMode.ThreeD && args.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                _isOrbitingCamera = true;
+                _lastMousePosition = new System.Drawing.Point(args.X, args.Y);
+            }
+            _glControl.Focus();
+        };
+
+        _glControl.MouseUp += (_, args) =>
+        {
+            _renderer.SetMouse(args.X, args.Y, false);
+            if (args.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                _isOrbitingCamera = false;
+            }
+        };
+
+        _glControl.MouseWheel += (_, args) =>
+        {
+            if (_document.RenderMode == RenderMode.ThreeD)
+            {
+                _renderer.ZoomCamera(args.Delta / 120f * 2f);
+            }
+        };
+
         _glControl.KeyDown += (_, args) =>
         {
             if (args.KeyCode == System.Windows.Forms.Keys.Escape)
@@ -124,6 +165,8 @@ public partial class MainWindow : Window
             Math.Max(1, _glControl.ClientSize.Width),
             Math.Max(1, _glControl.ClientSize.Height),
             _document.FragmentSource);
+
+        TryLoadInitialModel();
 
         foreach (var channel in _document.Channels.Where(c => !string.IsNullOrWhiteSpace(c.TexturePath)))
         {
@@ -144,6 +187,7 @@ public partial class MainWindow : Window
         var elapsed = _frameStopwatch.Elapsed.TotalSeconds;
         _frameStopwatch.Restart();
 
+        HandleCameraInput((float)elapsed);
         _glControl.MakeCurrent();
         _renderer.Render(elapsed);
         _glControl.SwapBuffers();
@@ -321,11 +365,24 @@ public partial class MainWindow : Window
 
         var mode = RenderModeComboBox.SelectedIndex == 1 ? RenderMode.ThreeD : RenderMode.TwoD;
         _document.RenderMode = mode;
-        _renderer.SetRenderMode(mode);
+        if (_glControl is null)
+        {
+            Update3DControlsState();
+            _sessionStore.Save(_document);
+            return;
+        }
+
+        var result = _renderer.SetRenderMode(mode);
+        AppendCompileResult(result);
+        Update3DControlsState();
 
         if (mode == RenderMode.ThreeD)
         {
-            AppendDiagnostic("3D mode is an advanced path and currently stubbed in this MVP.");
+            if (ModelComboBox.SelectedIndex >= 0)
+            {
+                TryLoadModelAt(ModelComboBox.SelectedIndex, persistSelection: false);
+            }
+            AppendDiagnostic("3D mode active. Use WASD + right mouse drag + wheel.");
         }
 
         _sessionStore.Save(_document);
@@ -353,6 +410,11 @@ public partial class MainWindow : Window
     private void LoadChannel1_Click(object sender, RoutedEventArgs e) => LoadChannel(1);
     private void LoadChannel2_Click(object sender, RoutedEventArgs e) => LoadChannel(2);
     private void LoadChannel3_Click(object sender, RoutedEventArgs e) => LoadChannel(3);
+    private void ResetCameraButton_Click(object sender, RoutedEventArgs e)
+    {
+        _renderer.ResetCamera();
+        AppendDiagnostic("Camera reset.");
+    }
 
     private void LoadChannel(int channel)
     {
@@ -491,6 +553,7 @@ public partial class MainWindow : Window
         _document.FragmentSource = EditorTextBox.Text;
         _document.AutoCompile = AutoCompileCheckBox.IsChecked == true;
         _document.IsFullscreen = _isFullscreen;
+        _document.SelectedModelPath = _renderer.CurrentModelPath;
         _sessionStore.Save(_document);
 
         if (_glControl is not null)
@@ -498,6 +561,132 @@ public partial class MainWindow : Window
             _glControl.MakeCurrent();
             _renderer.Dispose();
             _glControl.Dispose();
+        }
+    }
+
+    private void PopulateModelsCombo()
+    {
+        var modelsRoot = ResolveModelsRoot();
+        _availableModels = _renderer.DiscoverModels(modelsRoot);
+        ModelComboBox.Items.Clear();
+        foreach (var model in _availableModels)
+        {
+            ModelComboBox.Items.Add(model.Name);
+        }
+
+        if (_availableModels.Count == 0)
+        {
+            AppendDiagnostic($"No models found in: {modelsRoot}");
+            ModelComboBox.SelectedIndex = -1;
+            return;
+        }
+
+        var selectedIndex = 0;
+        if (!string.IsNullOrWhiteSpace(_document.SelectedModelPath))
+        {
+            for (var i = 0; i < _availableModels.Count; i++)
+            {
+                if (string.Equals(_availableModels[i].Path, _document.SelectedModelPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        ModelComboBox.SelectedIndex = selectedIndex;
+    }
+
+    private string ResolveModelsRoot()
+    {
+        var directory = AppContext.BaseDirectory;
+        for (int i = 0; i < 8; i++)
+        {
+            var candidate = Path.Combine(directory, "Mesh");
+            if (Directory.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            var parent = Directory.GetParent(directory);
+            if (parent is null)
+            {
+                break;
+            }
+
+            directory = parent.FullName;
+        }
+
+        var fallback = Path.Combine(Directory.GetCurrentDirectory(), "Mesh");
+        return fallback;
+    }
+
+    private void TryLoadInitialModel()
+    {
+        if (_availableModels.Count == 0 || ModelComboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        TryLoadModelAt(ModelComboBox.SelectedIndex, persistSelection: false);
+    }
+
+    private void ModelComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded || ModelComboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        TryLoadModelAt(ModelComboBox.SelectedIndex, persistSelection: true);
+    }
+
+    private void TryLoadModelAt(int index, bool persistSelection)
+    {
+        if (_glControl is null || index < 0 || index >= _availableModels.Count)
+        {
+            return;
+        }
+
+        _glControl.MakeCurrent();
+        var selectedModel = _availableModels[index];
+        if (_renderer.TryLoadModel(selectedModel.Path, out var message))
+        {
+            _document.SelectedModelPath = selectedModel.Path;
+            if (persistSelection)
+            {
+                _sessionStore.Save(_document);
+            }
+        }
+
+        AppendDiagnostic(message);
+    }
+
+    private void Update3DControlsState()
+    {
+        var is3d = _document.RenderMode == RenderMode.ThreeD;
+        ModelComboBox.IsEnabled = is3d && _availableModels.Count > 0;
+        ResetCameraButton.IsEnabled = is3d;
+    }
+
+    private void HandleCameraInput(float deltaSeconds)
+    {
+        if (_document.RenderMode != RenderMode.ThreeD)
+        {
+            return;
+        }
+
+        float forward = 0f;
+        float right = 0f;
+
+        if (Keyboard.IsKeyDown(Key.W)) forward += 1f;
+        if (Keyboard.IsKeyDown(Key.S)) forward -= 1f;
+        if (Keyboard.IsKeyDown(Key.A)) right -= 1f;
+        if (Keyboard.IsKeyDown(Key.D)) right += 1f;
+
+        if (forward != 0f || right != 0f)
+        {
+            _renderer.MoveCamera(forward, right, deltaSeconds);
         }
     }
 }

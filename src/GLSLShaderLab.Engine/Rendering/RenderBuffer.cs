@@ -7,6 +7,7 @@ internal sealed class RenderBuffer : IDisposable
 {
     public int TextureId { get; }
     public int FramebufferId { get; }
+    public int DepthBufferId { get; }
     public int Width { get; private set; }
     public int Height { get; private set; }
 
@@ -27,6 +28,11 @@ internal sealed class RenderBuffer : IDisposable
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferId);
         GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, TextureId, 0);
 
+        DepthBufferId = GL.GenRenderbuffer();
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, DepthBufferId);
+        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Width, Height);
+        GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, DepthBufferId);
+
         var status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
         if (status != FramebufferErrorCode.FramebufferComplete)
         {
@@ -34,6 +40,7 @@ internal sealed class RenderBuffer : IDisposable
         }
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
         GL.BindTexture(TextureTarget.Texture2D, 0);
     }
 
@@ -43,11 +50,16 @@ internal sealed class RenderBuffer : IDisposable
         Height = Math.Max(1, height);
         GL.BindTexture(TextureTarget.Texture2D, TextureId);
         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Width, Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, DepthBufferId);
+        GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, Width, Height);
+        GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
     }
 
     public void Dispose()
     {
         GL.DeleteFramebuffer(FramebufferId);
+        GL.DeleteRenderbuffer(DepthBufferId);
         GL.DeleteTexture(TextureId);
     }
 }

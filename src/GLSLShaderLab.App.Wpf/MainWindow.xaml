@@ -29,6 +29,9 @@
                 <ComboBoxItem Content="2D" IsSelected="True"/>
                 <ComboBoxItem Content="3D (Advanced)"/>
             </ComboBox>
+            <TextBlock Text="Model:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+            <ComboBox Name="ModelComboBox" Width="180" SelectionChanged="ModelComboBox_SelectionChanged"/>
+            <Button Name="ResetCameraButton" Content="Reset Camera" Click="ResetCameraButton_Click" Margin="2"/>
             <Separator/>
             <TextBlock Text="Template:" VerticalAlignment="Center" Margin="4,0"/>
             <ComboBox Name="TemplateComboBox" Width="160" SelectionChanged="TemplateComboBox_SelectionChanged"/>

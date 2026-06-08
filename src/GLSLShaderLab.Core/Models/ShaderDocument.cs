@@ -12,6 +12,7 @@ public sealed class ShaderDocument
     public int ResolutionWidth { get; set; } = 1280;
     public int ResolutionHeight { get; set; } = 720;
     public RenderMode RenderMode { get; set; } = RenderMode.TwoD;
+    public string? SelectedModelPath { get; set; }
     public List<ShaderChannel> Channels { get; set; } =
     [
         new() { Index = 0 },

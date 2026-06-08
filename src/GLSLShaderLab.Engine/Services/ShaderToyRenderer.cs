@@ -5,6 +5,7 @@ using GLSLShaderLab.Core.Models;
 using GLSLShaderLab.Core.Services;
 using GLSLShaderLab.Engine.Rendering;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -21,6 +22,7 @@ public sealed class ShaderToyRenderer : IDisposable
     private RenderBuffer? _frontBuffer;
     private RenderBuffer? _backBuffer;
     private readonly Dictionary<int, int> _channelTextures = new();
+    private ModelGeometry? _model;
     private bool _initialized;
     private int _width;
     private int _height;
@@ -29,9 +31,18 @@ public sealed class ShaderToyRenderer : IDisposable
     private float _mouseX;
     private float _mouseY;
     private bool _mouseDown;
+    private string _currentFragmentSource = string.Empty;
+
+    private Vector3 _cameraPos = new(0.0f, 0.0f, 3.0f);
+    private Vector3 _cameraFront = new(0.0f, 0.0f, -1.0f);
+    private Vector3 _cameraUp = Vector3.UnitY;
+    private float _yaw = -90.0f;
+    private float _pitch;
+    private float _fov = 45.0f;
+    private float _rotationY;
 
     public RenderMode Mode { get; private set; } = RenderMode.TwoD;
-
+    public string? CurrentModelPath { get; private set; }
     public ShaderCompileMessage LastCompileMessage { get; private set; } = new(true, "Ready");
 
     public void Initialize(int width, int height, string initialFragment)
@@ -61,8 +72,68 @@ void main()
         _copyShader = copyProgram;
         LastCompileMessage = copyResult;
 
+        _currentFragmentSource = initialFragment;
         Compile(initialFragment);
         _initialized = true;
+    }
+
+    public IReadOnlyList<ModelAsset> DiscoverModels(string modelsDirectory)
+    {
+        if (!Directory.Exists(modelsDirectory))
+        {
+            return [];
+        }
+
+        var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".glb", ".gltf", ".obj", ".fbx", ".dae", ".3ds"
+        };
+
+        var results = new List<ModelAsset>();
+        foreach (var file in Directory.EnumerateFiles(modelsDirectory, "*.*", SearchOption.AllDirectories))
+        {
+            if (!extensions.Contains(Path.GetExtension(file)))
+            {
+                continue;
+            }
+
+            var relativeDir = Path.GetRelativePath(modelsDirectory, Path.GetDirectoryName(file) ?? modelsDirectory);
+            var baseName = Path.GetFileNameWithoutExtension(file);
+            var name = relativeDir == "." ? baseName : $"{relativeDir}/{baseName}";
+            results.Add(new ModelAsset(name, file));
+        }
+
+        results.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
+        return results;
+    }
+
+    public bool TryLoadModel(string? modelPath, out string message)
+    {
+        if (string.IsNullOrWhiteSpace(modelPath))
+        {
+            message = "Model path is empty.";
+            return false;
+        }
+
+        if (!File.Exists(modelPath))
+        {
+            message = $"Model file not found: {modelPath}";
+            return false;
+        }
+
+        try
+        {
+            _model?.Dispose();
+            _model = new ModelGeometry(modelPath);
+            CurrentModelPath = modelPath;
+            message = $"Loaded model: {Path.GetFileName(modelPath)}";
+            return true;
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+            return false;
+        }
     }
 
     public ShaderCompileMessage Compile(string fragmentSource)
@@ -73,7 +144,12 @@ void main()
             return LastCompileMessage;
         }
 
-        var (newProgram, result) = ShaderProgram.TryCreate(ShaderTemplateCatalog.FullscreenVertex, fragmentSource);
+        _currentFragmentSource = fragmentSource;
+        var vertexSource = Mode == RenderMode.ThreeD
+            ? ShaderTemplateCatalog.ModelVertex
+            : ShaderTemplateCatalog.FullscreenVertex;
+
+        var (newProgram, result) = ShaderProgram.TryCreate(vertexSource, fragmentSource);
         if (newProgram is not null)
         {
             _shader?.Dispose();
@@ -84,20 +160,67 @@ void main()
         return LastCompileMessage;
     }
 
+    public ShaderCompileMessage SetRenderMode(RenderMode mode)
+    {
+        Mode = mode;
+        return Compile(_currentFragmentSource);
+    }
+
     public void SetPaused(bool paused) => _isPaused = paused;
 
     public void ResetTime() => _time = 0f;
+
+    public void ResetCamera()
+    {
+        _cameraPos = new Vector3(0.0f, 0.0f, 3.0f);
+        _cameraFront = new Vector3(0.0f, 0.0f, -1.0f);
+        _cameraUp = Vector3.UnitY;
+        _yaw = -90.0f;
+        _pitch = 0.0f;
+        _fov = 45.0f;
+        _rotationY = 0.0f;
+    }
+
+    public void MoveCamera(float forwardAxis, float rightAxis, float deltaSeconds)
+    {
+        if (Mode != RenderMode.ThreeD)
+        {
+            return;
+        }
+
+        var speed = 2.5f * deltaSeconds;
+        var right = Vector3.Normalize(Vector3.Cross(_cameraFront, _cameraUp));
+        _cameraPos += _cameraFront * forwardAxis * speed;
+        _cameraPos += right * rightAxis * speed;
+    }
+
+    public void RotateCamera(float deltaYaw, float deltaPitch)
+    {
+        if (Mode != RenderMode.ThreeD)
+        {
+            return;
+        }
+
+        _yaw += deltaYaw;
+        _pitch = Math.Clamp(_pitch + deltaPitch, -89.0f, 89.0f);
+        UpdateCameraFront();
+    }
+
+    public void ZoomCamera(float delta)
+    {
+        if (Mode != RenderMode.ThreeD)
+        {
+            return;
+        }
+
+        _fov = Math.Clamp(_fov - delta, 20.0f, 80.0f);
+    }
 
     public void SetMouse(float x, float y, bool isDown)
     {
         _mouseX = x;
         _mouseY = y;
         _mouseDown = isDown;
-    }
-
-    public void SetRenderMode(RenderMode mode)
-    {
-        Mode = mode;
     }
 
     public bool TrySetChannelTexture(int channel, string? path, out string message)
@@ -174,12 +297,17 @@ void main()
         if (!_isPaused)
         {
             _time += (float)elapsedSeconds;
+            if (Mode == RenderMode.ThreeD)
+            {
+                _rotationY += (float)elapsedSeconds * 30.0f;
+            }
         }
 
         RenderToBuffer(_frontBuffer, _backBuffer.TextureId);
 
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         GL.Viewport(0, 0, _width, _height);
+        GL.Disable(EnableCap.DepthTest);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
         _copyShader.Use();
@@ -198,17 +326,45 @@ void main()
     {
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, target.FramebufferId);
         GL.Viewport(0, 0, _width, _height);
-        GL.Clear(ClearBufferMask.ColorBufferBit);
+        GL.Enable(EnableCap.DepthTest);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         _shader!.Use();
         _shader.SetFloat("iTime", _time);
         _shader.SetVector2("iResolution", _width, _height);
         _shader.SetVector2("iMouse", _mouseX, _height - _mouseY);
         _shader.SetInt("iMouseClick", _mouseDown ? 1 : 0);
+        _shader.SetVector3("viewPos", _cameraPos);
 
+        BindChannels(previousFrameTexture);
+
+        if (Mode == RenderMode.ThreeD && _model is not null)
+        {
+            var model = Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_rotationY));
+            var view = Matrix4.LookAt(_cameraPos, _cameraPos + _cameraFront, _cameraUp);
+            var projection = Matrix4.CreatePerspectiveFieldOfView(
+                MathHelper.DegreesToRadians(_fov),
+                _width / (float)_height,
+                0.1f,
+                100.0f);
+
+            _shader.SetMatrix4("model", model);
+            _shader.SetMatrix4("view", view);
+            _shader.SetMatrix4("projection", projection);
+
+            _model.Render();
+            return;
+        }
+
+        GL.BindVertexArray(_vao);
+        GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+    }
+
+    private void BindChannels(int previousFrameTexture)
+    {
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, previousFrameTexture);
-        _shader.SetInt("iChannel0", 0);
+        _shader!.SetInt("iChannel0", 0);
 
         for (int i = 1; i <= 3; i++)
         {
@@ -222,18 +378,24 @@ void main()
                 GL.BindTexture(TextureTarget.Texture2D, previousFrameTexture);
             }
 
-            _shader.SetInt($"iChannel{i}", i);
+            _shader!.SetInt($"iChannel{i}", i);
         }
 
         if (_channelTextures.TryGetValue(0, out int texture0))
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texture0);
-            _shader.SetInt("iChannel0", 0);
+            _shader!.SetInt("iChannel0", 0);
         }
+    }
 
-        GL.BindVertexArray(_vao);
-        GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+    private void UpdateCameraFront()
+    {
+        var front = Vector3.Zero;
+        front.X = (float)Math.Cos(MathHelper.DegreesToRadians(_yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(_pitch));
+        front.Y = (float)Math.Sin(MathHelper.DegreesToRadians(_pitch));
+        front.Z = (float)Math.Sin(MathHelper.DegreesToRadians(_yaw)) * (float)Math.Cos(MathHelper.DegreesToRadians(_pitch));
+        _cameraFront = Vector3.Normalize(front);
     }
 
     private void CreateFullscreenQuad()
@@ -273,6 +435,7 @@ void main()
     {
         _shader?.Dispose();
         _copyShader?.Dispose();
+        _model?.Dispose();
 
         foreach (var tex in _channelTextures.Values)
         {
