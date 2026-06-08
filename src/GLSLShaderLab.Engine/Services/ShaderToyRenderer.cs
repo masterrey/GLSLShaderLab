@@ -31,6 +31,7 @@ public sealed class ShaderToyRenderer : IDisposable
     private float _mouseX;
     private float _mouseY;
     private bool _mouseDown;
+    private string _currentVertexSource = ShaderTemplateCatalog.ModelVertex;
     private string _currentFragmentSource = string.Empty;
 
     private Vector3 _cameraPos = new(0.0f, 0.0f, 3.0f);
@@ -136,7 +137,7 @@ void main()
         }
     }
 
-    public ShaderCompileMessage Compile(string fragmentSource)
+    public ShaderCompileMessage Compile(string fragmentSource, string? vertexSource = null)
     {
         if (!_initialized && _copyShader == null)
         {
@@ -144,12 +145,17 @@ void main()
             return LastCompileMessage;
         }
 
+        if (!string.IsNullOrWhiteSpace(vertexSource))
+        {
+            _currentVertexSource = vertexSource;
+        }
+
         _currentFragmentSource = fragmentSource;
-        var vertexSource = Mode == RenderMode.ThreeD
-            ? ShaderTemplateCatalog.ModelVertex
+        var vertexCode = Mode == RenderMode.ThreeD
+            ? _currentVertexSource
             : ShaderTemplateCatalog.FullscreenVertex;
 
-        var (newProgram, result) = ShaderProgram.TryCreate(vertexSource, fragmentSource);
+        var (newProgram, result) = ShaderProgram.TryCreate(vertexCode, fragmentSource);
         if (newProgram is not null)
         {
             _shader?.Dispose();
@@ -160,10 +166,10 @@ void main()
         return LastCompileMessage;
     }
 
-    public ShaderCompileMessage SetRenderMode(RenderMode mode)
+    public ShaderCompileMessage SetRenderMode(RenderMode mode, string? vertexSource = null)
     {
         Mode = mode;
-        return Compile(_currentFragmentSource);
+        return Compile(_currentFragmentSource, vertexSource ?? _currentVertexSource);
     }
 
     public void SetPaused(bool paused) => _isPaused = paused;

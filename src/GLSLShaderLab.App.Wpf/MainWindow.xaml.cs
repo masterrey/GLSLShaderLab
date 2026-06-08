@@ -61,8 +61,14 @@ public partial class MainWindow : Window
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         _document = _sessionStore.LoadOrDefault();
+        if (string.IsNullOrWhiteSpace(_document.VertexSource))
+        {
+            _document.VertexSource = ShaderTemplateCatalog.ModelVertex;
+        }
+
         AutoCompileCheckBox.IsChecked = _document.AutoCompile;
         EditorTextBox.Text = _document.FragmentSource;
+        VertexEditorTextBox.Text = _document.VertexSource;
 
         foreach (var template in ShaderTemplateCatalog.Templates)
         {
@@ -73,6 +79,12 @@ public partial class MainWindow : Window
         RenderModeComboBox.SelectedIndex = _document.RenderMode == RenderMode.ThreeD ? 1 : 0;
 
         InitializeGlHost();
+        if (_glControl is not null)
+        {
+            _glControl.MakeCurrent();
+            AppendCompileResult(_renderer.SetRenderMode(_document.RenderMode, _document.VertexSource));
+        }
+
         Update3DControlsState();
         _renderer.SetPaused(_document.IsPaused);
         PlayPauseButton.Content = _document.IsPaused ? "Play" : "Pause";
@@ -211,9 +223,10 @@ public partial class MainWindow : Window
         }
 
         _document.FragmentSource = EditorTextBox.Text;
+        _document.VertexSource = VertexEditorTextBox.Text;
         _glControl.MakeCurrent();
 
-        var result = _renderer.Compile(_document.FragmentSource);
+        var result = _renderer.Compile(_document.FragmentSource, _document.VertexSource);
         AppendCompileResult(result);
 
         _sessionStore.Save(_document);
@@ -365,6 +378,7 @@ public partial class MainWindow : Window
 
         var mode = RenderModeComboBox.SelectedIndex == 1 ? RenderMode.ThreeD : RenderMode.TwoD;
         _document.RenderMode = mode;
+        _document.VertexSource = VertexEditorTextBox.Text;
         if (_glControl is null)
         {
             Update3DControlsState();
@@ -372,7 +386,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        var result = _renderer.SetRenderMode(mode);
+        var result = _renderer.SetRenderMode(mode, _document.VertexSource);
         AppendCompileResult(result);
         Update3DControlsState();
 
@@ -551,6 +565,7 @@ public partial class MainWindow : Window
         _compileDebounceTimer.Stop();
 
         _document.FragmentSource = EditorTextBox.Text;
+        _document.VertexSource = VertexEditorTextBox.Text;
         _document.AutoCompile = AutoCompileCheckBox.IsChecked == true;
         _document.IsFullscreen = _isFullscreen;
         _document.SelectedModelPath = _renderer.CurrentModelPath;
@@ -667,6 +682,7 @@ public partial class MainWindow : Window
         var is3d = _document.RenderMode == RenderMode.ThreeD;
         ModelComboBox.IsEnabled = is3d && _availableModels.Count > 0;
         ResetCameraButton.IsEnabled = is3d;
+        VertexEditorTab.IsEnabled = is3d;
     }
 
     private void HandleCameraInput(float deltaSeconds)

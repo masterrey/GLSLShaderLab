@@ -57,23 +57,31 @@
                 <ColumnDefinition Name="PreviewColumnDefinition" Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="Fragment Shader" FontWeight="Bold" Margin="8"/>
-                <TextBox Name="EditorTextBox"
-                         Grid.Row="1"
-                         Margin="8"
-                         FontFamily="Consolas"
-                         FontSize="14"
-                         AcceptsReturn="True"
-                         AcceptsTab="True"
-                         VerticalScrollBarVisibility="Auto"
-                         HorizontalScrollBarVisibility="Auto"
-                         TextChanged="EditorTextBox_TextChanged"/>
+            <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0" Margin="8">
+                <TabControl Name="ShaderEditorsTabControl">
+                    <TabItem Header="Fragment Shader">
+                        <TextBox Name="EditorTextBox"
+                                 Margin="4"
+                                 FontFamily="Consolas"
+                                 FontSize="14"
+                                 AcceptsReturn="True"
+                                 AcceptsTab="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 TextChanged="EditorTextBox_TextChanged"/>
+                    </TabItem>
+                    <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)">
+                        <TextBox Name="VertexEditorTextBox"
+                                 Margin="4"
+                                 FontFamily="Consolas"
+                                 FontSize="14"
+                                 AcceptsReturn="True"
+                                 AcceptsTab="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 TextChanged="EditorTextBox_TextChanged"/>
+                    </TabItem>
+                </TabControl>
             </Grid>
 
             <Grid Name="PreviewPaneGrid" Grid.Row="0" Grid.Column="1">

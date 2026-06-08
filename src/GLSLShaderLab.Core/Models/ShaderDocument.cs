@@ -5,6 +5,7 @@ namespace GLSLShaderLab.Core.Models;
 public sealed class ShaderDocument
 {
     public string Name { get; set; } = "Untitled";
+    public string VertexSource { get; set; } = string.Empty;
     public string FragmentSource { get; set; } = string.Empty;
     public bool AutoCompile { get; set; } = true;
     public bool IsPaused { get; set; }

@@ -56,6 +56,7 @@ void main()
     public static ShaderDocument CreateDefaultDocument() => new()
     {
         Name = "New Shader",
+        VertexSource = ModelVertex,
         FragmentSource = EmptyTemplate
     };
 
