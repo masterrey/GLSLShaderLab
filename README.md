@@ -4,27 +4,26 @@ Laboratório para experimentar shaders GLSL com dois fluxos de trabalho: **Studi
 
 ## Comece aqui
 
+Abra `GLSLShaderLab.sln` — a solução principal. Ela contém todos os projetos organizados em pastas:
+
+- 📁 **Studio (novo)** — `App.Wpf`, `Engine`, `Core`
+- 📁 **Legacy (antigo)** — `GLSLShaderLab` (console)
+
 ### 1) Studio (novo) — ponto de partida oficial
 
 Use este fluxo para desenvolvimento atual.
 
-- Solução: `GLSLShaderLab.Studio.slnx`
-- Projetos: `src/GLSLShaderLab.App.Wpf`, `src/GLSLShaderLab.Engine`, `src/GLSLShaderLab.Core`
-
 ```bash
-dotnet build GLSLShaderLab.Studio.slnx
 dotnet run --project src/GLSLShaderLab.App.Wpf/GLSLShaderLab.App.Wpf.csproj
 ```
 
+No VS Code, pressione **F5** e a configuração **"Studio (WPF) — novo"** será selecionada automaticamente.
+
 ### 2) Legacy (antigo) — fluxo mantido por compatibilidade
 
-Use apenas quando precisar do app antigo.
-
-- Solução: `GLSLShaderLab.sln` (na raiz)
-- Entrada: `Program.cs`
+Use apenas quando precisar do app antigo baseado em console.
 
 ```bash
-dotnet build GLSLShaderLab.sln
 dotnet run --project GLSLShaderLab.csproj
 ```
 
