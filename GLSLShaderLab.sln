@@ -3,6 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36301.6 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Studio (novo)", "Studio (novo)", "{7C12EB36-AA5B-4BE2-8C25-70ED6831190C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSLShaderLab.App.Wpf", "src\GLSLShaderLab.App.Wpf\GLSLShaderLab.App.Wpf.csproj", "{7B2F2FDF-E789-47D1-B97A-C18A43557F9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSLShaderLab.Engine", "src\GLSLShaderLab.Engine\GLSLShaderLab.Engine.csproj", "{4F511A5A-780B-4817-84AF-303C38AD06CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSLShaderLab.Core", "src\GLSLShaderLab.Core\GLSLShaderLab.Core.csproj", "{01D75937-51DF-4CDF-A52F-4C36A5696DDD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Legacy (antigo)", "Legacy (antigo)", "{074653C9-14C1-4897-AE5B-5F72B5161E92}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GLSLShaderLab", "GLSLShaderLab.csproj", "{A7F52727-3CB3-C294-B528-483D930C3C80}"
 EndProject
 Global
@@ -11,10 +21,28 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7B2F2FDF-E789-47D1-B97A-C18A43557F9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B2F2FDF-E789-47D1-B97A-C18A43557F9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B2F2FDF-E789-47D1-B97A-C18A43557F9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B2F2FDF-E789-47D1-B97A-C18A43557F9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F511A5A-780B-4817-84AF-303C38AD06CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F511A5A-780B-4817-84AF-303C38AD06CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F511A5A-780B-4817-84AF-303C38AD06CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F511A5A-780B-4817-84AF-303C38AD06CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01D75937-51DF-4CDF-A52F-4C36A5696DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01D75937-51DF-4CDF-A52F-4C36A5696DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01D75937-51DF-4CDF-A52F-4C36A5696DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01D75937-51DF-4CDF-A52F-4C36A5696DDD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7F52727-3CB3-C294-B528-483D930C3C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7F52727-3CB3-C294-B528-483D930C3C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7F52727-3CB3-C294-B528-483D930C3C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7F52727-3CB3-C294-B528-483D930C3C80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7B2F2FDF-E789-47D1-B97A-C18A43557F9A} = {7C12EB36-AA5B-4BE2-8C25-70ED6831190C}
+		{4F511A5A-780B-4817-84AF-303C38AD06CD} = {7C12EB36-AA5B-4BE2-8C25-70ED6831190C}
+		{01D75937-51DF-4CDF-A52F-4C36A5696DDD} = {7C12EB36-AA5B-4BE2-8C25-70ED6831190C}
+		{A7F52727-3CB3-C294-B528-483D930C3C80} = {074653C9-14C1-4897-AE5B-5F72B5161E92}
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

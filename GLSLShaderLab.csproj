@@ -23,8 +23,11 @@
 
   <ItemGroup>
     <Compile Remove="glsl Shaders\**" />
+    <Compile Remove="src\**" />
     <EmbeddedResource Remove="glsl Shaders\**" />
+    <EmbeddedResource Remove="src\**" />
     <None Remove="glsl Shaders\**" />
+    <None Remove="src\**" />
   </ItemGroup>
 
   <ItemGroup>
