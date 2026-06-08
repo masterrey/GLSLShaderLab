@@ -365,6 +365,8 @@ void main()
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, previousFrameTexture);
         _shader!.SetInt("iChannel0", 0);
+        _shader.SetInt("texture0", 0);
+        _shader.SetInt("texture1", 0);
 
         for (int i = 1; i <= 3; i++)
         {
@@ -379,6 +381,8 @@ void main()
             }
 
             _shader!.SetInt($"iChannel{i}", i);
+            _shader.SetInt($"texture{i}", i);
+            _shader.SetInt($"texture{i + 1}", i);
         }
 
         if (_channelTextures.TryGetValue(0, out int texture0))
@@ -386,6 +390,8 @@ void main()
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, texture0);
             _shader!.SetInt("iChannel0", 0);
+            _shader.SetInt("texture0", 0);
+            _shader.SetInt("texture1", 0);
         }
     }
 

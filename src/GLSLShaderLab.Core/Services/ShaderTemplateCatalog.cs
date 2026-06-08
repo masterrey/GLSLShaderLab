@@ -31,6 +31,8 @@ out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
 out vec3 WorldPos;
+out vec3 VertexPos;
+out vec3 vertex;
 
 void main()
 {
@@ -38,6 +40,8 @@ void main()
     FragPos = WorldPos;
     Normal = mat3(transpose(inverse(model))) * aNormal;
     TexCoord = aTexCoord;
+    VertexPos = aPos;
+    vertex = aPos;
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
 """;
