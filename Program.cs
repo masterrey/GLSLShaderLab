@@ -6,30 +6,69 @@ namespace GLSLShaderLab
     {
         static void Main(string[] args)
         {
-            // Select model first
+            var shaderSelector = new ShaderSelector();
             var modelSelector = new ModelSelector();
-            var selectedModel = modelSelector.SelectModel();
-            
-            if (selectedModel == null)
+
+            var pipeline = shaderSelector.SelectPipeline();
+            var lessonMode = shaderSelector.SelectLessonMode();
+            var selectedLesson = shaderSelector.SelectLesson(pipeline, lessonMode);
+
+            if (selectedLesson == null)
             {
-                Console.WriteLine("Nenhum modelo selecionado. Encerrando programa.");
+                Console.WriteLine("Nenhuma aula selecionada. Encerrando programa.");
                 return;
             }
-            
-            // Then select shader
-            var shaderSelector = new ShaderSelector();
-            var selectedShader = shaderSelector.SelectShader();
-            
-            if (selectedShader != null)
+
+            var lessonsForPipeline = shaderSelector.GetLessonsForPipeline(pipeline, lessonMode);
+
+            ModelSelector.ModelInfo? selectedModel;
+            if (pipeline == ShaderSelector.LearningPipeline.Fragment2D)
             {
-                using (var window = new Window(800, 600, "GLSL Shader Lab", selectedShader, selectedModel))
+                selectedModel = modelSelector.GetDefaultModel();
+                if (selectedModel == null)
                 {
-                    window.Run();
+                    Console.WriteLine("Nenhum modelo disponível para inicializar a sessão. Encerrando programa.");
+                    return;
                 }
             }
             else
             {
-                Console.WriteLine("Nenhum shader selecionado. Encerrando programa.");
+                if (selectedLesson.UseFixedStarterModel && !string.IsNullOrWhiteSpace(selectedLesson.RecommendedModelFileName))
+                {
+                    selectedModel = modelSelector.TryGetModelByFileName(selectedLesson.RecommendedModelFileName)
+                                  ?? modelSelector.GetDefaultModel();
+
+                    if (selectedModel != null)
+                    {
+                        Console.WriteLine($"Modelo didático fixo selecionado: {selectedModel.Name}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Não foi possível encontrar modelo padrão para aula 3D. Encerrando programa.");
+                        return;
+                    }
+                }
+                else
+                {
+                    selectedModel = modelSelector.SelectModel(showAdvancedPrompt: true);
+                    if (selectedModel == null)
+                    {
+                        Console.WriteLine("Nenhum modelo selecionado. Encerrando programa.");
+                        return;
+                    }
+                }
+            }
+
+            using (var window = new Window(
+                       1280,
+                       720,
+                       "GLSL Shader Lab",
+                       selectedLesson,
+                       selectedModel,
+                       lessonsForPipeline,
+                       pipeline))
+            {
+                window.Run();
             }
         }
     }

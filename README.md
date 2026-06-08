@@ -1,175 +1,117 @@
-﻿# GLSLShaderLab
+# GLSLShaderLab
 
-Um laboratório interativo para experimentar com shaders GLSL em modelos 3D, perfeito para estudantes aprenderem programação de shaders com renderização tridimensional.
+Laboratório interativo para aprender GLSL em duas trilhas:
 
-## 🚀 Como Usar
+1. **Fragment Shader 2D (iniciante)**
+2. **Vertex + Fragment 3D (intermediário/avançado)**
 
-1. **Execute o programa**dotnet run
-2. **Selecione um modelo 3D**
-   - O programa irá mostrar uma lista de todos os modelos disponíveis na pasta `Mesh/`
-   - Digite o número correspondente ao modelo que deseja carregar
-   - Suporte para: GLB, GLTF, OBJ, FBX, DAE, 3DS
+A aplicação agora inicia com foco didático: primeiro você escolhe a trilha, depois a aula.
 
-3. **Selecione um shader**
-   - O programa irá mostrar uma lista de todos os shaders disponíveis
-   - Digite o número correspondente ao shader que deseja testar
-   - Digite 'r' para recarregar a lista caso adicione novos shaders
+## Como usar
 
-4. **Experimente!**
-   - A janela abrirá com o modelo 3D e shader selecionados
-   - Use os controles para navegar e experimentar
-   - O título da janela mostrará qual modelo e shader estão sendo usados
+1. Execute:
+   ```bash
+   dotnet run
+   ```
+2. Escolha o **pipeline de aprendizado**.
+3. Escolha o **modo de aulas**:
+   - Trilha curada (recomendado)
+   - Todos os shaders (inclui experimentais)
+4. Escolha uma aula e confirme.
+5. No pipeline 3D, em aulas avançadas, escolha modelo quando solicitado.
 
-## 🎮 Controles
+## Trilhas de aprendizado
 
-### Navegação da Câmera
-- **WASD** - Mover câmera (frente, trás, esquerda, direita)
-- **Mouse** - Olhar ao redor (mova o mouse para rotacionar a visão)
-- **Scroll** - Zoom in/out
-- **R** - Resetar posição da câmera
+## 1) Fragment Shader 2D (iniciante)
+Ordem sugerida:
+1. Color & Time Basics
+2. Shape Composition
+3. Pattern Composition
+4. Animated Ripples
+5. Mouse Interaction Paint
+6. Persistent Paint with Buffer
+7. Feedback Functions
+8. Advanced Buffer Demo
+9. Procedural Clouds
 
-### Troca de Conteúdo
-- **Q/E** - Trocar entre shaders disponíveis
-- **Z/X** - Trocar entre modelos 3D disponíveis
-- **H** - Mostrar/ocultar ajuda
-- **ESC** - Sair do programa
+Objetivos:
+- Entender `gl_FragCoord`, `iResolution`, `iTime`
+- Construir formas e padrões 2D
+- Trabalhar interação com mouse (`iMouse`, `iMouseClick`)
+- Aprender persistência com buffers (`iChannel0`)
 
-## 📁 Estrutura de Arquivos
+## 2) Vertex + Fragment 3D
+Ordem sugerida:
+1. 3D Lighting Intro
+2. Specular Lighting
+3. Vertex Deformation
+4. Animated Flag
+5. Normals Practice
 
-### Shaders (`Shaders/`)
-Os shaders devem estar organizados no diretório `Shaders/` e seguir a convenção:
-- `nomeDoShader.vert` - Vertex shader
-- `nomeDoShader.frag` - Fragment shader
+Objetivos:
+- Entender estágio de vértice e fragmento
+- Usar normais, câmera e iluminação
+- Fazer deformação de vértices
+- Explorar efeitos avançados em malha 3D
 
-### Modelos 3D (`Mesh/`)
-Os modelos 3D devem estar na pasta `Mesh/` nos formatos suportados:
-- `.glb` - GLTF Binary (recomendado)
-- `.gltf` - GLTF Text
-- `.obj` - Wavefront OBJ
-- `.fbx` - Autodesk FBX
-- `.dae` - Collada
-- `.3ds` - 3D Studio
+## Controles
 
-### Shaders Incluídos
+Controles gerais:
+- `Q / E` Aula anterior / próxima
+- `N` Próxima aula recomendada
+- `R` Resetar estado/câmera
+- `B` Toggle buffers
+- `C` Compare mode (quando disponível e buffers OFF)
+- `H` Mostrar/ocultar ajuda
+- `F5` Recarregar texturas
+- `ESC` Sair
 
-1. **basic3d** - Shader 3D básico com iluminação especular e variação de cor animada
-2. **shader** - Shader colorido animado com iluminação básica
-3. **waves** - Efeito de ondas aplicado ao modelo 3D com deformação de vértices
+Controles extras no pipeline 3D:
+- `W A S D` Mover câmera
+- `Z / X` Trocar modelo (aulas não fixas)
 
-## 🎨 Criando Seus Próprios Shaders para 3D
+## Recursos visuais de aprendizado
 
-Para criar um novo shader 3D:
+- Título da janela com badges de estado:
+  - Pipeline ativo
+  - Aula atual
+  - Buffers ON/OFF
+  - Quantidade de texturas
+  - Compare ON/OFF
+- Resumo da aula no console com:
+  - Categoria
+  - Dificuldade
+  - Objetivo
+  - Recursos necessários
 
-1. Crie dois arquivos no diretório `Shaders/`:
-   - `meuShader.vert`
-   - `meuShader.frag`
+## Buffers e comparação
 
-2. O vertex shader deve incluir as entradas de atributos 3D:#version 330 core
-layout(location = 0) in vec3 aPos;   // Posição do vértice
-layout(location = 1) in vec3 aNormal; // Normal do vértice
-layout(location = 2) in vec2 aTexCoord; // Coordenadas de textura
+- Aulas com persistência podem ativar buffers automaticamente.
+- `Compare mode` mostra referência e resultado lado a lado quando a aula possuir shader de referência.
+- Compare mode funciona com **buffers desligados**.
 
-uniform mat4 model;   // Matriz de transformação do modelo
-uniform mat4 view;       // Matriz de visão da câmera
-uniform mat4 projection; // Matriz de projeção
+## Estrutura principal
 
-out vec3 FragPos;   // Posição do fragmento no espaço mundo
-out vec3 Normal;    // Normal do fragmento
-out vec2 TexCoord; // Coordenadas de textura
+- `/tmp/workspace/masterrey/GLSLShaderLab/Program.cs` - fluxo de startup (pipeline -> modo -> aula)
+- `/tmp/workspace/masterrey/GLSLShaderLab/ShaderSelector.cs` - metadados de aulas, trilhas e seleção
+- `/tmp/workspace/masterrey/GLSLShaderLab/Window.cs` - renderização, controles, compare mode e estado visual
+- `/tmp/workspace/masterrey/GLSLShaderLab/ModelSelector.cs` - seleção de modelos e modelo padrão
+- `/tmp/workspace/masterrey/GLSLShaderLab/Shaders/` - shaders GLSL
+- `/tmp/workspace/masterrey/GLSLShaderLab/Mesh/` - modelos 3D
+- `/tmp/workspace/masterrey/GLSLShaderLab/Textures/` - texturas auxiliares
 
-void main()
-{
-    FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;
-    TexCoord = aTexCoord;
-    
-    gl_Position = projection * view * vec4(FragPos, 1.0);
-   }
-3. No fragment shader você tem acesso a:
-   - `uniform float iTime` - Tempo em segundos
-   - `uniform vec2 iResolution` - Resolução da tela
-   - `uniform vec3 viewPos` - Posição da câmera
-   - `in vec3 FragPos` - Posição do fragmento no espaço mundo
-   - `in vec3 Normal` - Normal do fragmento
-   - `in vec2 TexCoord` - Coordenadas de textura
+## Requisitos
 
-4. Execute o programa novamente ou use 'r' para recarregar
-
-## 🛠️ Uniforms Disponíveis
-
-### Automaticamente Definidos
-- `mat4 model` - Matriz de transformação do modelo
-- `mat4 view` - Matriz de visão da câmera
-- `mat4 projection` - Matriz de projeção perspectiva
-- `vec3 viewPos` - Posição da câmera no espaço mundo
-
-### Shadertoy-like
-- `float iTime` - Tempo decorrido em segundos (útil para animações)
-- `vec2 iResolution` - Resolução da janela
-
-## 📚 Exemplos de Shaders 3D
-
-### Iluminação Básica#version 330 core
-out vec4 FragColor;
-
-in vec3 FragPos;
-in vec3 Normal;
-in vec2 TexCoord;
-
-uniform vec3 viewPos;
-
-void main()
-{
-    vec3 norm = normalize(Normal);
-    vec3 lightPos = vec3(2.0, 4.0, 2.0);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);
-    
-    vec3 ambient = 0.3 * vec3(1.0, 1.0, 1.0);
-    vec3 result = (ambient + diffuse) * vec3(0.6, 0.8, 1.0);
-    
-    FragColor = vec4(result, 1.0);
-}
-### Deformação com Ondas (Vertex Shader)#version 330 core
-layout(location = 0) in vec3 aPos;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec2 aTexCoord;
-
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-uniform float iTime;
-
-out vec3 FragPos;
-out vec3 Normal;
-out vec2 TexCoord;
-
-void main()
-{
-    vec3 pos = aPos;
-    
-    // Adicionar deformação de onda
-    pos.y += sin(pos.x * 10.0 + iTime * 2.0) * 0.1;
-    pos.y += sin(pos.z * 15.0 + iTime * 3.0) * 0.05;
-    
-    FragPos = vec3(model * vec4(pos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;
-    TexCoord = aTexCoord;
-    
-    gl_Position = projection * view * vec4(FragPos, 1.0);
-}
-## 🔧 Requisitos
-
-- .NET 7 ou superior
+- .NET 9 SDK
 - OpenTK 4.7.6
-- AssimpNet 5.0.0-beta1 (para carregamento de modelos 3D)
+- AssimpNet 5.0.0-beta1
+- SixLabors.ImageSharp 3.1.11
 
-## 🎯 Dicas para Estudantes
+## Dica didática
 
-1. **Comece com modelos simples** - Use modelos básicos como cubos ou esferas
-2. **Experimente com iluminação** - Adicione múltiplas luzes e diferentes tipos
-3. **Use deformação de vértices** - Modifique posições no vertex shader para efeitos interessantes
-4. **Combine matemática e arte** - Use funções trigonométricas para criar padrões
-5. **Teste em tempo real** - Use Q/E e Z/X para trocar rapidamente entre shaders e modelos
+Para turmas iniciantes, use sempre:
+1. Pipeline 2D
+2. Trilha curada
+3. Aulas em ordem
+
+Depois migre para a trilha 3D.

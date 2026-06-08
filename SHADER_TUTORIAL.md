@@ -1,102 +1,87 @@
-# ?? Tutorial de Shader - Sistema de Pintura
+# Tutorial de Shader por Trilhas
 
-## ?? O que este shader faz?
+Este guia acompanha o novo fluxo do projeto: primeiro 2D fragment, depois 3D vertex+fragment.
 
-Este shader simula um **programa de pintura simples** onde você pode:
-- Clicar e arrastar o mouse para desenhar círculos coloridos
-- Os círculos ficam "marcados" na tela (persistem entre frames)
-- Usar buffers para lembrar do que foi pintado antes
+## Trilha 1: Fragment Shader 2D
 
-## ?? Como funciona?
+## Aula 1 â€” Color & Time Basics
+**Objetivo:** entender `gl_FragCoord`, `iResolution`, `iTime`.
 
-### Conceitos básicos:
+Checklist:
+- [ ] Converter coordenadas para UV (0..1)
+- [ ] Gerar gradiente simples
+- [ ] Animar cor com `sin(iTime)`
 
-1. **Coordenadas UV** (0 a 1):
-   ```glsl
-   vec2 uv = gl_FragCoord.xy / iResolution.xy;
-   ```
-   - Converte pixels da tela para coordenadas normalizadas
-   - (0,0) = canto inferior esquerdo
-   - (1,1) = canto superior direito
+## Aula 2 â€” Shape Composition
+**Objetivo:** desenhar formas com funÃ§Ãµes de distÃ¢ncia.
 
-2. **Detecção do Mouse Clicado**:
-   ```glsl
-   uniform int iMouseClick;  // 1 = clicado, 0 = não clicado
-   if (iMouseClick == 1) // Mouse pressionado
-   ```
-   - `iMouse.xy` = posição do mouse
-   - `iMouseClick` = estado do botão (0 ou 1) - mais claro que iMouse.z
+Checklist:
+- [ ] Criar cÃ­rculo por `distance`
+- [ ] Suavizar borda com `smoothstep`
+- [ ] Misturar forma com cor de fundo
 
-3. **Função distance()**:
-   ```glsl
-   float dist = distance(coordenadas, posicaoMouse);
-   ```
-   - Calcula distância entre dois pontos
-   - Usado para criar círculos
+## Aula 3 â€” Mouse Interaction Paint
+**Objetivo:** usar `iMouse` e `iMouseClick`.
 
-4. **Função smoothstep()**:
-   ```glsl
-   float circulo = 1.0 - smoothstep(tamanho - borda, tamanho, distancia);
-   ```
-   - Cria transições suaves (anti-aliasing)
-   - Evita bordas "serrilhadas"
+Checklist:
+- [ ] Mostrar indicador do mouse
+- [ ] Pintar somente quando click ativo
+- [ ] Alterar tamanho/cor do pincel
 
-5. **Buffers (iChannel0)**:
-   ```glsl
-   vec3 anterior = texture(iChannel0, uv).rgb;
-   ```
-   - Lê o que foi pintado no frame anterior
-   - Permite persistência da pintura
+## Aula 4 â€” Persistent Paint with Buffer
+**Objetivo:** entender persistÃªncia entre frames com `iChannel0`.
 
-## ?? **iMouseClick vs iMouse.z**
+Checklist:
+- [ ] Ler frame anterior em `iChannel0`
+- [ ] Misturar conteÃºdo atual com anterior
+- [ ] Testar diferenÃ§a entre Buffers ON e OFF
 
-### **Vantagens do iMouseClick:**
-- ? **Mais claro**: `iMouseClick == 1` é mais legível que `iMouse.z > 0.5`
-- ? **Semântica**: Nome específico para a função
-- ? **Tipo correto**: `int` em vez de `float`
-- ? **Pedagógico**: Mais fácil para iniciantes entenderem
+## Trilha 2: Vertex + Fragment 3D
 
-### **Comparação:**
-```glsl
-// Método antigo (funciona, mas menos claro)
-if (iMouse.z > 0.5) { /* pintar */ }
+## Aula 1 â€” 3D Lighting Intro
+**Objetivo:** conectar atributos de malha e iluminaÃ§Ã£o bÃ¡sica.
 
-// Método novo (mais claro e didático)
-if (iMouseClick == 1) { /* pintar */ }
-```
+Checklist:
+- [ ] Usar `aPos`, `aNormal`, `aTexCoord`
+- [ ] Aplicar `model`, `view`, `projection`
+- [ ] Calcular iluminaÃ§Ã£o ambiente + difusa
 
-## ?? Exercícios para Praticar:
+## Aula 2 â€” Specular Lighting
+**Objetivo:** adicionar brilho especular.
 
-### Nível Iniciante:
-1. **Mudar cor do pincel**: Altere `vec3(0.9, 0.4, 0.7)` para outras cores
-2. **Tamanho do círculo**: Modifique `0.08` para fazer círculos maiores/menores
-3. **Cor de fundo**: Adicione uma cor de fundo fixa
+Checklist:
+- [ ] Calcular vetor da cÃ¢mera (`viewPos`)
+- [ ] Usar `reflect` e potÃªncia specular
+- [ ] Ajustar material/baseColor
 
-### Nível Intermediário:
-4. **Cores animadas**: Use `sin(iTime)` para animar as cores
-5. **Múltiplos pincéis**: Diferentes cores baseadas na posição do mouse
-6. **Fade gradual**: Descomente a linha do fade para pintura temporária
+## Aula 3 â€” Vertex Deformation
+**Objetivo:** deformar geometria no vertex shader.
 
-### Nível Avançado:
-7. **Pincéis diferentes**: Quadrados, triângulos, estrelas
-8. **Texturas**: Use outros iChannels para texturas de pincel
-9. **Blend modes**: Experimente diferentes modos de mistura
+Checklist:
+- [ ] Modificar posiÃ§Ã£o de vÃ©rtice com `sin`
+- [ ] Manter renderizaÃ§Ã£o estÃ¡vel no fragment
+- [ ] Explorar amplitude/frequÃªncia
 
-## ?? Dicas importantes:
+## Recursos e sinais visuais
 
-- **Sempre ative buffers**: Pressione 'B' no programa para ativar iChannels
-- **Coordenadas**: GLSL usa (0,0) no canto inferior esquerdo
-- **Performance**: Evite loops complexos em shaders de pixel
-- **Debugging**: Use cores simples (vermelho, verde, azul) para testar
-- **iMouseClick**: Mais intuitivo que iMouse.z para detecção de cliques
+Durante a execuÃ§Ã£o, confira no tÃ­tulo da janela:
+- Pipeline ativo
+- Aula atual
+- Buffers ON/OFF
+- Quantidade de texturas
+- Compare ON/OFF
 
-## ?? Próximos passos:
+Use `H` para abrir resumo didÃ¡tico no console.
 
-1. Entenda este shader completamente
-2. Experimente modificações simples
-3. Crie suas próprias funções de desenho
-4. Explore outros shaders do projeto para aprender mais técnicas
+## Compare mode
 
----
-**Lembre-se**: Shader programming é como aprender uma nova linguagem. 
-Pratique muito e não tenha medo de experimentar! ??
+- DisponÃ­vel apenas em aulas com referÃªncia.
+- Funciona com buffers desligados.
+- Use para comparar resultado atual com shader de referÃªncia da aula.
+
+## SugestÃ£o de progressÃ£o para turmas
+
+1. Completar trilha 2D (ordem curada)
+2. Repetir 2D em modo â€œTodos os shadersâ€
+3. Migrar para trilha 3D
+4. Introduzir variaÃ§Ãµes prÃ³prias em cada aula
