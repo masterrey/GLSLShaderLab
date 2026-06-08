@@ -21,6 +21,7 @@ public partial class MainWindow : Window
 
     private GLControl? _glControl;
     private ShaderDocument _document = ShaderTemplateCatalog.CreateDefaultDocument();
+    private string? _currentFilePath;
     private DateTime _fpsWindowStart = DateTime.UtcNow;
     private int _framesInWindow;
     private bool _isFullscreen;
@@ -321,6 +322,81 @@ public partial class MainWindow : Window
             entry.TexturePath = dialog.FileName;
             _sessionStore.Save(_document);
         }
+    }
+
+    private void OnPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.S &&
+            (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0)
+        {
+            SaveButton_Click(sender, e);
+            e.Handled = true;
+        }
+    }
+
+    private void OpenButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "Fragment Shaders|*.frag|All Files|*.*",
+            CheckFileExists = true
+        };
+
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        EditorTextBox.Text = File.ReadAllText(dialog.FileName);
+        _currentFilePath = dialog.FileName;
+        UpdateTitle();
+        AppendDiagnostic($"Opened: {dialog.FileName}");
+    }
+
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrWhiteSpace(_currentFilePath))
+        {
+            SaveToFile(_currentFilePath);
+        }
+        else
+        {
+            SaveAsButton_Click(sender, e);
+        }
+    }
+
+    private void SaveAsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "Fragment Shaders|*.frag|All Files|*.*",
+            FileName = string.IsNullOrWhiteSpace(_currentFilePath)
+                ? "shader.frag"
+                : Path.GetFileName(_currentFilePath)
+        };
+
+        if (dialog.ShowDialog(this) != true)
+        {
+            return;
+        }
+
+        _currentFilePath = dialog.FileName;
+        SaveToFile(_currentFilePath);
+    }
+
+    private void SaveToFile(string path)
+    {
+        File.WriteAllText(path, EditorTextBox.Text);
+        UpdateTitle();
+        AppendDiagnostic($"Saved: {path}");
+        StatusTextBlock.Text = "Saved";
+    }
+
+    private void UpdateTitle()
+    {
+        Title = string.IsNullOrWhiteSpace(_currentFilePath)
+            ? "GLSL Shader Lab Studio"
+            : $"GLSL Shader Lab Studio — {Path.GetFileName(_currentFilePath)}";
     }
 
     private void OnClosing(object? sender, System.ComponentModel.CancelEventArgs e)

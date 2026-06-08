@@ -9,9 +9,14 @@
         Height="900"
         Width="1500"
         Loaded="OnLoaded"
-        Closing="OnClosing">
+        Closing="OnClosing"
+        PreviewKeyDown="OnPreviewKeyDown">
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
+            <Button Name="OpenButton" Content="Open..." Click="OpenButton_Click" Margin="2"/>
+            <Button Name="SaveButton" Content="Save" Click="SaveButton_Click" Margin="2"/>
+            <Button Name="SaveAsButton" Content="Save As..." Click="SaveAsButton_Click" Margin="2"/>
+            <Separator/>
             <Button Name="CompileButton" Content="Compile" Click="CompileButton_Click" Margin="2"/>
             <CheckBox Name="AutoCompileCheckBox" Content="Auto" Checked="AutoCompileCheckBox_OnChanged" Unchecked="AutoCompileCheckBox_OnChanged" Margin="8,0,0,0"/>
             <Separator/>
