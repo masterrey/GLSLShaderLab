@@ -491,6 +491,17 @@ public partial class MainWindow : Window
         }
 
         EditorTextBox.Text = File.ReadAllText(dialog.FileName);
+        var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
+        if (File.Exists(vertexSidecarPath))
+        {
+            VertexEditorTextBox.Text = File.ReadAllText(vertexSidecarPath);
+            AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
+        }
+        else
+        {
+            AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
+        }
+
         _currentFilePath = dialog.FileName;
         UpdateTitle();
         AppendDiagnostic($"Opened: {dialog.FileName}");
@@ -547,9 +558,17 @@ public partial class MainWindow : Window
         }
 
         File.WriteAllText(path, EditorTextBox.Text);
+        var vertexSidecarPath = GetVertexSidecarPath(path);
+        File.WriteAllText(vertexSidecarPath, VertexEditorTextBox.Text);
         UpdateTitle();
         AppendDiagnostic($"Saved: {path}");
+        AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
         StatusTextBlock.Text = "Saved";
+    }
+
+    private static string GetVertexSidecarPath(string fragmentPath)
+    {
+        return Path.ChangeExtension(fragmentPath, ".vert");
     }
 
     private void UpdateTitle()
