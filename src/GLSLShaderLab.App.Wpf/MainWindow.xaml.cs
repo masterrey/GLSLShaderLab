@@ -3,19 +3,41 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using GLSLShaderLab.Core.Models;
 using GLSLShaderLab.Core.Services;
 using GLSLShaderLab.Engine.Services;
 using OpenTK.GLControl;
+using WpfBrush = System.Windows.Media.Brush;
+using WpfRichTextBox = System.Windows.Controls.RichTextBox;
 
 namespace GLSLShaderLab.App.Wpf;
 
 public partial class MainWindow : Window
 {
     private static readonly string[] FundamentalDirectories = ["Shaders", "Mesh", "Textures"];
+    private const double MinEditorFontSize = 10d;
+    private const double MaxEditorFontSize = 30d;
+    private const double EditorFontStep = 1d;
+    private static readonly WpfBrush EditorDefaultForeground = CreateBrush("#D4D4D4");
+    private static readonly (Regex Pattern, WpfBrush Brush, FontWeight? Weight)[] GlslHighlightRules =
+    [
+        (new Regex(@"//.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#6A9955"), null),
+        (new Regex(@"/\*.*?\*/", RegexOptions.Compiled | RegexOptions.Singleline), CreateBrush("#6A9955"), null),
+        (new Regex("^\\s*#\\w+.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#C586C0"), null),
+        (new Regex("\"(?:\\\\.|[^\"\\\\])*\"", RegexOptions.Compiled), CreateBrush("#CE9178"), null),
+        (new Regex(@"\b\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?[fFuU]?\b", RegexOptions.Compiled), CreateBrush("#B5CEA8"), null),
+        (new Regex(@"\b(?:if|else|for|while|do|switch|case|default|break|continue|discard|return|const|in|out|inout|uniform|layout|precision|struct)\b", RegexOptions.Compiled), CreateBrush("#569CD6"), FontWeights.SemiBold),
+        (new Regex(@"\b(?:void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler1D|sampler2D|sampler3D|samplerCube|sampler2DArray|sampler2DShadow)\b", RegexOptions.Compiled), CreateBrush("#4EC9B0"), null),
+        (new Regex(@"\bgl_[A-Za-z0-9_]*\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), null),
+        (new Regex(@"\b(?:iResolution|iTime|iTimeDelta|iFrame|iMouse|iDate|iChannelTime|iChannelResolution|iChannel0|iChannel1|iChannel2|iChannel3|mainImage|fragColor|fragCoord|VertexPos|vertex)\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), null),
+    ];
     private readonly SessionStore _sessionStore = new();
     private readonly ShaderToyRenderer _renderer = new();
     private readonly DispatcherTimer _renderTimer;
@@ -41,6 +63,7 @@ public partial class MainWindow : Window
     private IReadOnlyList<ModelAsset> _availableModels = Array.Empty<ModelAsset>();
     private bool _isOrbitingCamera;
     private System.Drawing.Point _lastMousePosition;
+    private bool _isApplyingSyntaxHighlighting;
 
     public MainWindow()
     {
@@ -69,8 +92,8 @@ public partial class MainWindow : Window
         }
 
         AutoCompileCheckBox.IsChecked = _document.AutoCompile;
-        EditorTextBox.Text = _document.FragmentSource;
-        VertexEditorTextBox.Text = _document.VertexSource;
+        SetEditorText(EditorTextBox, _document.FragmentSource);
+        SetEditorText(VertexEditorTextBox, _document.VertexSource);
 
         foreach (var template in ShaderTemplateCatalog.Templates)
         {
@@ -224,8 +247,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        _document.FragmentSource = EditorTextBox.Text;
-        _document.VertexSource = VertexEditorTextBox.Text;
+        _document.FragmentSource = GetEditorText(EditorTextBox);
+        _document.VertexSource = GetEditorText(VertexEditorTextBox);
         _glControl.MakeCurrent();
 
         var result = _renderer.Compile(_document.FragmentSource, _document.VertexSource);
@@ -249,8 +272,13 @@ public partial class MainWindow : Window
         DiagnosticsTextBox.ScrollToEnd();
     }
 
-    private void EditorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    private void EditorTextBox_TextChanged(object? sender, EventArgs e)
     {
+        if (!_isApplyingSyntaxHighlighting && sender is WpfRichTextBox editor)
+        {
+            ApplySyntaxHighlighting(editor);
+        }
+
         if (AutoCompileCheckBox.IsChecked != true)
         {
             return;
@@ -258,6 +286,26 @@ public partial class MainWindow : Window
 
         _compileDebounceTimer.Stop();
         _compileDebounceTimer.Start();
+    }
+
+    private void EditorTextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if ((Keyboard.Modifiers & ModifierKeys.Control) == 0)
+        {
+            return;
+        }
+
+        if (sender is not WpfRichTextBox editor)
+        {
+            return;
+        }
+
+        var direction = e.Delta > 0 ? 1d : -1d;
+        var nextSize = Math.Clamp(editor.FontSize + direction * EditorFontStep, MinEditorFontSize, MaxEditorFontSize);
+
+        EditorTextBox.FontSize = nextSize;
+        VertexEditorTextBox.FontSize = nextSize;
+        e.Handled = true;
     }
 
     private void CompileDebounceTimer_Tick(object? sender, EventArgs e)
@@ -380,7 +428,7 @@ public partial class MainWindow : Window
 
         var mode = RenderModeComboBox.SelectedIndex == 1 ? RenderMode.ThreeD : RenderMode.TwoD;
         _document.RenderMode = mode;
-        _document.VertexSource = VertexEditorTextBox.Text;
+        _document.VertexSource = GetEditorText(VertexEditorTextBox);
         if (_glControl is null)
         {
             Update3DControlsState();
@@ -417,7 +465,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        EditorTextBox.Text = template.FragmentSource;
+        SetEditorText(EditorTextBox, template.FragmentSource);
         CompileCurrentShader();
         AppendDiagnostic($"Loaded template: {selectedName}");
     }
@@ -492,13 +540,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        EditorTextBox.Text = File.ReadAllText(dialog.FileName);
+        SetEditorText(EditorTextBox, File.ReadAllText(dialog.FileName));
         if (_document.RenderMode == RenderMode.ThreeD)
         {
             var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
             if (File.Exists(vertexSidecarPath))
             {
-                VertexEditorTextBox.Text = File.ReadAllText(vertexSidecarPath);
+                SetEditorText(VertexEditorTextBox, File.ReadAllText(vertexSidecarPath));
                 AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
             }
             else
@@ -562,11 +610,11 @@ public partial class MainWindow : Window
             }
         }
 
-        File.WriteAllText(path, EditorTextBox.Text);
+        File.WriteAllText(path, GetEditorText(EditorTextBox));
         if (_document.RenderMode == RenderMode.ThreeD)
         {
             var vertexSidecarPath = GetVertexSidecarPath(path);
-            File.WriteAllText(vertexSidecarPath, VertexEditorTextBox.Text);
+            File.WriteAllText(vertexSidecarPath, GetEditorText(VertexEditorTextBox));
             AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
         }
         UpdateTitle();
@@ -591,8 +639,8 @@ public partial class MainWindow : Window
         _renderTimer.Stop();
         _compileDebounceTimer.Stop();
 
-        _document.FragmentSource = EditorTextBox.Text;
-        _document.VertexSource = VertexEditorTextBox.Text;
+        _document.FragmentSource = GetEditorText(EditorTextBox);
+        _document.VertexSource = GetEditorText(VertexEditorTextBox);
         _document.AutoCompile = AutoCompileCheckBox.IsChecked == true;
         _document.IsFullscreen = _isFullscreen;
         _document.SelectedModelPath = _renderer.CurrentModelPath;
@@ -753,5 +801,106 @@ public partial class MainWindow : Window
         {
             _renderer.MoveCamera(forward, right, deltaSeconds);
         }
+    }
+
+    private void SetEditorText(WpfRichTextBox editor, string text)
+    {
+        _isApplyingSyntaxHighlighting = true;
+        try
+        {
+            editor.Document = new FlowDocument(new Paragraph(new Run(text)) { Margin = new Thickness(0) });
+        }
+        finally
+        {
+            _isApplyingSyntaxHighlighting = false;
+        }
+
+        ApplySyntaxHighlighting(editor);
+    }
+
+    private static string GetEditorText(WpfRichTextBox editor)
+    {
+        var text = new TextRange(editor.Document.ContentStart, editor.Document.ContentEnd).Text;
+        return text.EndsWith("\r\n", StringComparison.Ordinal) ? text[..^2] : text;
+    }
+
+    private void ApplySyntaxHighlighting(WpfRichTextBox editor)
+    {
+        if (_isApplyingSyntaxHighlighting)
+        {
+            return;
+        }
+
+        _isApplyingSyntaxHighlighting = true;
+        try
+        {
+            var document = editor.Document;
+            var fullRange = new TextRange(document.ContentStart, document.ContentEnd);
+            fullRange.ApplyPropertyValue(TextElement.ForegroundProperty, EditorDefaultForeground);
+            fullRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Normal);
+
+            var text = GetEditorText(editor);
+            foreach (var rule in GlslHighlightRules)
+            {
+                foreach (Match match in rule.Pattern.Matches(text))
+                {
+                    if (match.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var start = GetTextPointerAtOffset(document, match.Index);
+                    var end = GetTextPointerAtOffset(document, match.Index + match.Length);
+                    var range = new TextRange(start, end);
+                    range.ApplyPropertyValue(TextElement.ForegroundProperty, rule.Brush);
+                    if (rule.Weight.HasValue)
+                    {
+                        range.ApplyPropertyValue(TextElement.FontWeightProperty, rule.Weight.Value);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _isApplyingSyntaxHighlighting = false;
+        }
+    }
+
+    private static TextPointer GetTextPointerAtOffset(FlowDocument document, int offset)
+    {
+        var navigator = document.ContentStart;
+        var remaining = offset;
+
+        while (navigator is not null)
+        {
+            if (navigator.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text)
+            {
+                var textRun = navigator.GetTextInRun(LogicalDirection.Forward);
+                if (textRun.Length >= remaining)
+                {
+                    return navigator.GetPositionAtOffset(remaining) ?? document.ContentEnd;
+                }
+
+                remaining -= textRun.Length;
+            }
+
+            var next = navigator.GetNextContextPosition(LogicalDirection.Forward);
+            if (next is null)
+            {
+                break;
+            }
+
+            navigator = next;
+        }
+
+        return document.ContentEnd;
+    }
+
+    private static WpfBrush CreateBrush(string hexColor)
+    {
+        var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hexColor)!;
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
     }
 }

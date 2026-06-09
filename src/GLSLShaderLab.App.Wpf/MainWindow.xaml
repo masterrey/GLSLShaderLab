@@ -60,26 +60,24 @@
             <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0" Margin="8">
                 <TabControl Name="ShaderEditorsTabControl">
                     <TabItem Header="Fragment Shader">
-                        <TextBox Name="EditorTextBox"
-                                 Margin="4"
-                                 FontFamily="Consolas"
-                                 FontSize="14"
-                                 AcceptsReturn="True"
-                                 AcceptsTab="True"
-                                 VerticalScrollBarVisibility="Auto"
-                                 HorizontalScrollBarVisibility="Auto"
-                                 TextChanged="EditorTextBox_TextChanged"/>
+                        <RichTextBox Name="EditorTextBox"
+                                     Margin="4"
+                                     FontFamily="Consolas"
+                                     FontSize="14"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                     TextChanged="EditorTextBox_TextChanged"/>
                     </TabItem>
                     <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)">
-                        <TextBox Name="VertexEditorTextBox"
-                                 Margin="4"
-                                 FontFamily="Consolas"
-                                 FontSize="14"
-                                 AcceptsReturn="True"
-                                 AcceptsTab="True"
-                                 VerticalScrollBarVisibility="Auto"
-                                 HorizontalScrollBarVisibility="Auto"
-                                 TextChanged="EditorTextBox_TextChanged"/>
+                        <RichTextBox Name="VertexEditorTextBox"
+                                     Margin="4"
+                                     FontFamily="Consolas"
+                                     FontSize="14"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                     TextChanged="EditorTextBox_TextChanged"/>
                     </TabItem>
                 </TabControl>
             </Grid>
