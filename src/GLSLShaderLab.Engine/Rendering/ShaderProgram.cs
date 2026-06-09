@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using GLSLShaderLab.Core.Models;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace GLSLShaderLab.Engine.Rendering;
 
@@ -101,6 +102,18 @@ internal sealed class ShaderProgram : IDisposable
     {
         var loc = GL.GetUniformLocation(Handle, name);
         if (loc >= 0) GL.Uniform2(loc, x, y);
+    }
+
+    public void SetVector3(string name, Vector3 value)
+    {
+        var loc = GL.GetUniformLocation(Handle, name);
+        if (loc >= 0) GL.Uniform3(loc, value);
+    }
+
+    public void SetMatrix4(string name, Matrix4 value)
+    {
+        var loc = GL.GetUniformLocation(Handle, name);
+        if (loc >= 0) GL.UniformMatrix4(loc, false, ref value);
     }
 
     private static ShaderCompileMessage CreateMessage(string log, string stage)
