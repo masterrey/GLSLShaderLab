@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GLSLShaderLab.Core.Models;
 using GLSLShaderLab.Core.Services;
 using GLSLShaderLab.Engine.Services;
+using ICSharpCode.AvalonEdit;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Rules;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
+using ICSharpCode.AvalonEdit.Rendering;
 using OpenTK.GLControl;
 
 namespace GLSLShaderLab.App.Wpf;
@@ -16,6 +22,10 @@ namespace GLSLShaderLab.App.Wpf;
 public partial class MainWindow : Window
 {
     private static readonly string[] FundamentalDirectories = ["Shaders", "Mesh", "Textures"];
+    private const double MinEditorFontSize = 10d;
+    private const double MaxEditorFontSize = 30d;
+    private const double EditorFontStep = 1d;
+    private static readonly Lazy<IHighlightingDefinition> GlslHighlighting = new(CreateGlslHighlighting);
     private readonly SessionStore _sessionStore = new();
     private readonly ShaderToyRenderer _renderer = new();
     private readonly DispatcherTimer _renderTimer;
@@ -71,6 +81,8 @@ public partial class MainWindow : Window
         AutoCompileCheckBox.IsChecked = _document.AutoCompile;
         EditorTextBox.Text = _document.FragmentSource;
         VertexEditorTextBox.Text = _document.VertexSource;
+        EditorTextBox.SyntaxHighlighting = GlslHighlighting.Value;
+        VertexEditorTextBox.SyntaxHighlighting = GlslHighlighting.Value;
 
         foreach (var template in ShaderTemplateCatalog.Templates)
         {
@@ -249,7 +261,7 @@ public partial class MainWindow : Window
         DiagnosticsTextBox.ScrollToEnd();
     }
 
-    private void EditorTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    private void EditorTextBox_TextChanged(object? sender, EventArgs e)
     {
         if (AutoCompileCheckBox.IsChecked != true)
         {
@@ -258,6 +270,26 @@ public partial class MainWindow : Window
 
         _compileDebounceTimer.Stop();
         _compileDebounceTimer.Start();
+    }
+
+    private void EditorTextBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if ((Keyboard.Modifiers & ModifierKeys.Control) == 0)
+        {
+            return;
+        }
+
+        if (sender is not TextEditor editor)
+        {
+            return;
+        }
+
+        var direction = e.Delta > 0 ? 1d : -1d;
+        var nextSize = Math.Clamp(editor.FontSize + direction * EditorFontStep, MinEditorFontSize, MaxEditorFontSize);
+
+        EditorTextBox.FontSize = nextSize;
+        VertexEditorTextBox.FontSize = nextSize;
+        e.Handled = true;
     }
 
     private void CompileDebounceTimer_Tick(object? sender, EventArgs e)
@@ -753,5 +785,70 @@ public partial class MainWindow : Window
         {
             _renderer.MoveCamera(forward, right, deltaSeconds);
         }
+    }
+
+    private static IHighlightingDefinition CreateGlslHighlighting()
+    {
+        var commentColor = CreateColor("#6A9955");
+        var keywordColor = CreateColor("#569CD6", isBold: true);
+        var typeColor = CreateColor("#4EC9B0");
+        var builtinColor = CreateColor("#DCDCAA");
+        var numberColor = CreateColor("#B5CEA8");
+        var stringColor = CreateColor("#CE9178");
+        var preprocessorColor = CreateColor("#C586C0");
+
+        var mainRuleSet = new HighlightingRuleSet();
+        mainRuleSet.Rules.Add(CreateRule(@"//.*$", commentColor, RegexOptions.Multiline));
+        mainRuleSet.Rules.Add(CreateRule(@"/\*.*?\*/", commentColor, RegexOptions.Singleline));
+        mainRuleSet.Rules.Add(CreateRule("^\\s*#\\w+.*$", preprocessorColor, RegexOptions.Multiline));
+        mainRuleSet.Rules.Add(CreateRule("\"(?:\\\\.|[^\"\\\\])*\"", stringColor));
+        mainRuleSet.Rules.Add(CreateRule(@"\b\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?[fFuU]?\b", numberColor));
+        mainRuleSet.Rules.Add(CreateWordRule(
+            "if", "else", "for", "while", "do", "switch", "case", "default", "break", "continue", "discard", "return",
+            "const", "in", "out", "inout", "uniform", "layout", "precision", "struct"));
+        mainRuleSet.Rules.Add(CreateWordRule(typeColor,
+            "void", "bool", "int", "uint", "float", "double",
+            "vec2", "vec3", "vec4", "ivec2", "ivec3", "ivec4", "uvec2", "uvec3", "uvec4", "bvec2", "bvec3", "bvec4",
+            "mat2", "mat3", "mat4", "mat2x2", "mat2x3", "mat2x4", "mat3x2", "mat3x3", "mat3x4", "mat4x2", "mat4x3", "mat4x4",
+            "sampler1D", "sampler2D", "sampler3D", "samplerCube", "sampler2DArray", "sampler2DShadow"));
+        mainRuleSet.Rules.Add(CreateRule(@"\bgl_[A-Za-z0-9_]*\b", builtinColor));
+        mainRuleSet.Rules.Add(CreateWordRule(builtinColor,
+            "iResolution", "iTime", "iTimeDelta", "iFrame", "iMouse", "iDate", "iChannelTime", "iChannelResolution",
+            "iChannel0", "iChannel1", "iChannel2", "iChannel3", "mainImage", "fragColor", "fragCoord", "VertexPos", "vertex"));
+
+        return new CustomHighlightingDefinition("GLSL", mainRuleSet);
+
+        HighlightingRule CreateWordRule(params string[] words) => CreateWordRule(keywordColor, words);
+
+        static HighlightingRule CreateWordRule(HighlightingColor color, params string[] words)
+            => CreateRule($@"\b(?:{string.Join("|", words.Select(Regex.Escape))})\b", color);
+    }
+
+    private static HighlightingRule CreateRule(string pattern, HighlightingColor color, RegexOptions options = RegexOptions.None)
+    {
+        return new HighlightingRule
+        {
+            Regex = new Regex(pattern, RegexOptions.Compiled | options),
+            Color = color
+        };
+    }
+
+    private static HighlightingColor CreateColor(string hexColor, bool isBold = false)
+    {
+        return new HighlightingColor
+        {
+            Foreground = new SimpleHighlightingBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hexColor)!),
+            FontWeight = isBold ? FontWeights.SemiBold : null
+        };
+    }
+
+    private sealed class CustomHighlightingDefinition(string name, HighlightingRuleSet mainRuleSet) : IHighlightingDefinition
+    {
+        public string Name { get; } = name;
+        public HighlightingRuleSet MainRuleSet { get; } = mainRuleSet;
+        public HighlightingRuleSet? GetNamedRuleSet(string name) => null;
+        public HighlightingColor? GetNamedColor(string name) => null;
+        public IEnumerable<HighlightingColor> NamedHighlightingColors => Enumerable.Empty<HighlightingColor>();
+        public IDictionary<string, string> Properties { get; } = new Dictionary<string, string>();
     }
 }
