@@ -226,25 +226,6 @@ Consulte [TROUBLESHOOTING.md](TROUBLESHOOTING.md) para soluções comuns.
 
 ---
 
-## 📋 Roadmap Acadêmico
-
-### Passo 2 (Próxima Entrega)
-
-- [ ] Consolidar UX do Studio com foco em fluxo de edição + preview em tempo real
-- [ ] Revisar e documentar atalhos de teclado essenciais
-- [ ] Implementar feedback visual claro para operações de arquivo (open/save/save as)
-- [ ] Validação com testes: `dotnet test GLSLShaderLab.sln`
-- [ ] Expandir suporte 3D completo (compatível com versão legacy)
-
-### Critério de Validação
-
-Ao finalizar cada etapa:
-- ✓ O que foi concluído
-- ✓ Qual é o próximo objetivo
-- ✓ Como validar rapidamente
-
----
-
 ## 📚 Recursos Educacionais
 
 - **[SHADER_TUTORIAL.md](SHADER_TUTORIAL.md)** — Tutoriais interativos de GLSL (iniciante a avançado)
@@ -264,7 +245,7 @@ Ao finalizar cada etapa:
 
 **Prof. Dr. Reinaldo Ramos**  
 Professor — Disciplina de Jogos Digitais  
-Escola de Criatividade, Planejamento e Gestão  
+
 Pontifícia Universidade Católica de São Paulo (PUC-SP)
 
 Este projeto foi desenvolvido como ferramenta pedagógica para facilitar o aprendizado prático de programação de shaders em um contexto acadêmico estruturado.
@@ -294,7 +275,7 @@ Este projeto é licenciado sob a [Licença MIT](LICENSE.md).
 
 - **Issues**: [GitHub Issues](https://github.com/masterrey/GLSLShaderLab/issues)
 - **Discussões**: [GitHub Discussions](https://github.com/masterrey/GLSLShaderLab/discussions)
-- **Email**: [contato via instituição]
+
 
 ---
 
