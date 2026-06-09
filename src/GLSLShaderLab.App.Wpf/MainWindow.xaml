@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
         xmlns:wf="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         mc:Ignorable="d"
         Title="GLSL Shader Lab Studio"
@@ -61,22 +60,24 @@
             <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0" Margin="8">
                 <TabControl Name="ShaderEditorsTabControl">
                     <TabItem Header="Fragment Shader">
-                        <avalonedit:TextEditor Name="EditorTextBox"
-                                               Margin="4"
-                                               FontFamily="Consolas"
-                                               FontSize="14"
-                                               ShowLineNumbers="True"
-                                               PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                               TextChanged="EditorTextBox_TextChanged"/>
+                        <RichTextBox Name="EditorTextBox"
+                                     Margin="4"
+                                     FontFamily="Consolas"
+                                     FontSize="14"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                     TextChanged="EditorTextBox_TextChanged"/>
                     </TabItem>
                     <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)">
-                        <avalonedit:TextEditor Name="VertexEditorTextBox"
-                                               Margin="4"
-                                               FontFamily="Consolas"
-                                               FontSize="14"
-                                               ShowLineNumbers="True"
-                                               PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                               TextChanged="EditorTextBox_TextChanged"/>
+                        <RichTextBox Name="VertexEditorTextBox"
+                                     Margin="4"
+                                     FontFamily="Consolas"
+                                     FontSize="14"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                     TextChanged="EditorTextBox_TextChanged"/>
                     </TabItem>
                 </TabControl>
             </Grid>
