@@ -303,6 +303,15 @@ public partial class MainWindow : Window
         if (!_isApplyingSyntaxHighlighting && sender is WpfRichTextBox editor)
         {
             ApplySyntaxHighlighting(editor);
+
+            if (editor == EditorTextBox)
+            {
+                UpdateLineNumbers(EditorTextBox, EditorLineNumbers);
+            }
+            else if (editor == VertexEditorTextBox)
+            {
+                UpdateLineNumbers(VertexEditorTextBox, VertexEditorLineNumbers);
+            }
         }
 
         if (AutoCompileCheckBox.IsChecked != true)
@@ -936,7 +945,16 @@ public partial class MainWindow : Window
         _isApplyingSyntaxHighlighting = true;
         try
         {
-            editor.Document = new FlowDocument(new Paragraph(new Run(text)) { Margin = new Thickness(0) });
+            var paragraph = new Paragraph(new Run(text))
+            {
+                Margin = new Thickness(0),
+                Padding = new Thickness(0)
+            };
+
+            editor.Document = new FlowDocument(paragraph)
+            {
+                PagePadding = new Thickness(0)
+            };
         }
         finally
         {
