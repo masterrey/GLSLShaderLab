@@ -610,11 +610,17 @@ public partial class MainWindow : Window
         }
     }
 
+    private bool IsVertexTabSelected()
+    {
+        return ShaderEditorsTabControl.SelectedIndex == 1;
+    }
+
     private void OpenButton_Click(object sender, RoutedEventArgs e)
     {
+        bool isVertexTab = IsVertexTabSelected();
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
-            Filter = "Fragment Shaders|*.frag|All Files|*.*",
+            Filter = isVertexTab ? "Vertex Shaders|*.vert|All Files|*.*" : "Fragment Shaders|*.frag|All Files|*.*",
             CheckFileExists = true
         };
 
@@ -623,24 +629,34 @@ public partial class MainWindow : Window
             return;
         }
 
-        SetEditorText(EditorTextBox, File.ReadAllText(dialog.FileName));
-        var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
-        if (File.Exists(vertexSidecarPath))
+        if (isVertexTab)
         {
-            SetEditorText(VertexEditorTextBox, File.ReadAllText(vertexSidecarPath));
-            AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
+            SetEditorText(VertexEditorTextBox, File.ReadAllText(dialog.FileName));
+            _document.VertexSource = GetEditorText(VertexEditorTextBox);
+            AppendDiagnostic($"Opened vertex shader: {dialog.FileName}");
         }
-        else if (_document.RenderMode == RenderMode.ThreeD)
+        else
         {
-            AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
+            SetEditorText(EditorTextBox, File.ReadAllText(dialog.FileName));
+            var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
+            if (File.Exists(vertexSidecarPath))
+            {
+                SetEditorText(VertexEditorTextBox, File.ReadAllText(vertexSidecarPath));
+                AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
+            }
+            else if (_document.RenderMode == RenderMode.ThreeD)
+            {
+                AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
+            }
+
+            _currentFilePath = dialog.FileName;
+            _document.FragmentSource = GetEditorText(EditorTextBox);
+            _document.VertexSource = GetEditorText(VertexEditorTextBox);
+            AppendDiagnostic($"Opened fragment shader: {dialog.FileName}");
         }
 
-        _currentFilePath = dialog.FileName;
-        _document.FragmentSource = GetEditorText(EditorTextBox);
-        _document.VertexSource = GetEditorText(VertexEditorTextBox);
         _sessionStore.Save(_document);
         UpdateTitle();
-        AppendDiagnostic($"Opened: {dialog.FileName}");
     }
 
     private void SaveButton_Click(object sender, RoutedEventArgs e)
