@@ -12,7 +12,7 @@
         Closing="OnClosing"
         PreviewKeyDown="OnPreviewKeyDown"
         WindowStartupLocation="CenterScreen">
-    <DockPanel Background="{StaticResource PrimaryBackgroundBrush}">
+    <DockPanel Background="{DynamicResource PrimaryBackgroundBrush}">
         <!-- Toolbar Row 1: File & Compile -->
         <ToolBar Name="MainToolBar" DockPanel.Dock="Top" Height="Auto" Padding="4" ToolBar.OverflowMode="Never">
             <DockPanel Width="Auto" LastChildFill="False">
@@ -20,17 +20,17 @@
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                     <Button Name="OpenButton" Content="📁 Open" Click="OpenButton_Click" Padding="8,4" Margin="2"/>
                     <Button Name="SaveButton" Content="💾 Save" Click="SaveButton_Click" Padding="8,4" Margin="2"/>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
+                    <Separator Style="{DynamicResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
                     <Button Name="CompileButton" Content="⚙️ Compile" Click="CompileButton_Click" Padding="8,4" Margin="2"/>
                     <CheckBox Name="AutoCompileCheckBox" Content="Auto" Checked="AutoCompileCheckBox_OnChanged" Unchecked="AutoCompileCheckBox_OnChanged" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                    <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
+                    <Separator Style="{DynamicResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
                     <Button Name="PlayPauseButton" Content="▶️ Play" Click="PlayPauseButton_Click" Padding="8,4" Margin="2"/>
                     <Button Name="ResetTimeButton" Content="⏱️ Reset" Click="ResetTimeButton_Click" Padding="8,4" Margin="2"/>
                     <Button Name="FullscreenButton" Content="🖥️ Full" Click="FullscreenButton_Click" Padding="8,4" Margin="2"/>
                 </StackPanel>
                 
                 <!-- Right side: Theme Toggle -->
-                <Button Name="ThemeToggleButton" Content="🌓 Theme" Click="ThemeToggleButton_Click" Padding="10,4" Margin="2" DockPanel.Dock="Right" Background="{StaticResource AccentBrush}" Foreground="White"/>
+                <Button Name="ThemeToggleButton" Content="🌓 Theme" Click="ThemeToggleButton_Click" Padding="10,4" Margin="2" DockPanel.Dock="Right" Background="{DynamicResource AccentBrush}" Foreground="White"/>
             </DockPanel>
         </ToolBar>
         
@@ -45,7 +45,7 @@
                 <TextBlock Text="Model:" VerticalAlignment="Center" Margin="12,0,4,0"/>
                 <ComboBox Name="ModelComboBox" Width="120" SelectionChanged="ModelComboBox_SelectionChanged" Padding="4" VerticalAlignment="Center"/>
                 <Button Name="ResetCameraButton" Content="🎯 Reset Cam" Click="ResetCameraButton_Click" Padding="8,4" Margin="4,2"/>
-                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
+                <Separator Style="{DynamicResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,0"/>
                 <TextBlock Text="Template:" VerticalAlignment="Center" Margin="4,0"/>
                 <ComboBox Name="TemplateComboBox" Width="120" SelectionChanged="TemplateComboBox_SelectionChanged" Padding="4" VerticalAlignment="Center"/>
             </StackPanel>
@@ -53,15 +53,15 @@
 
         <StatusBar Name="MainStatusBar" DockPanel.Dock="Bottom" Height="28" Padding="4">
             <StatusBarItem>
-                <TextBlock Name="StatusTextBlock" Text="Ready" Foreground="{StaticResource PrimaryForegroundBrush}"/>
+                <TextBlock Name="StatusTextBlock" Text="Ready" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Name="FpsTextBlock" Text="FPS: 0" Foreground="{StaticResource SecondaryForegroundBrush}"/>
+                <TextBlock Name="FpsTextBlock" Text="FPS: 0" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StatusBarItem>
         </StatusBar>
 
-        <Grid Name="MainContentGrid" Background="{StaticResource PrimaryBackgroundBrush}">
+        <Grid Name="MainContentGrid" Background="{DynamicResource PrimaryBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Name="PreviewRowDefinition" Height="*"/>
                 <RowDefinition Name="DiagnosticsRowDefinition" Height="200"/>
@@ -77,11 +77,11 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
-                <TextBlock Text="📝 Shader Editor" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Text="📝 Shader Editor" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{DynamicResource AccentBrush}"/>
                 
-                <TabControl Name="ShaderEditorsTabControl" Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}" Foreground="{StaticResource PrimaryForegroundBrush}">
-                    <TabItem Header="Fragment Shader" Background="{StaticResource TabBackgroundBrush}" Foreground="{StaticResource TabForegroundBrush}">
-                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource EditorBackgroundBrush}">
+                <TabControl Name="ShaderEditorsTabControl" Grid.Row="1" Background="{DynamicResource SecondaryBackgroundBrush}" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                    <TabItem Header="Fragment Shader" Background="{DynamicResource TabBackgroundBrush}" Foreground="{DynamicResource TabForegroundBrush}">
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource EditorBackgroundBrush}">
                             <RichTextBox Name="EditorTextBox"
                                      Margin="4"
                                      FontFamily="Consolas"
@@ -90,12 +90,12 @@
                                      HorizontalScrollBarVisibility="Auto"
                                      PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
                                      TextChanged="EditorTextBox_TextChanged"
-                                     Background="{StaticResource EditorBackgroundBrush}"
-                                     Foreground="{StaticResource EditorForegroundBrush}"/>
+                                     Background="{DynamicResource EditorBackgroundBrush}"
+                                     Foreground="{DynamicResource EditorForegroundBrush}"/>
                         </Border>
                     </TabItem>
-                    <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)" Background="{StaticResource TabBackgroundBrush}" Foreground="{StaticResource TabForegroundBrush}">
-                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource EditorBackgroundBrush}">
+                    <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)" Background="{DynamicResource TabBackgroundBrush}" Foreground="{DynamicResource TabForegroundBrush}">
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource EditorBackgroundBrush}">
                             <RichTextBox Name="VertexEditorTextBox"
                                      Margin="4"
                                      FontFamily="Consolas"
@@ -104,8 +104,8 @@
                                      HorizontalScrollBarVisibility="Auto"
                                      PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
                                      TextChanged="EditorTextBox_TextChanged"
-                                     Background="{StaticResource EditorBackgroundBrush}"
-                                     Foreground="{StaticResource EditorForegroundBrush}"/>
+                                     Background="{DynamicResource EditorBackgroundBrush}"
+                                     Foreground="{DynamicResource EditorForegroundBrush}"/>
                         </Border>
                     </TabItem>
                 </TabControl>
@@ -118,8 +118,8 @@
                     <RowDefinition Name="PreviewChannelsRowDefinition" Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Name="PreviewTitleTextBlock" Text="👁️ Preview" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
-                <Border Name="PreviewBorder" Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2" CornerRadius="4" Background="{StaticResource SecondaryBackgroundBrush}">
+                <TextBlock Name="PreviewTitleTextBlock" Text="👁️ Preview" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="{DynamicResource AccentBrush}"/>
+                <Border Name="PreviewBorder" Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2" CornerRadius="4" Background="{DynamicResource SecondaryBackgroundBrush}">
                     <wf:WindowsFormsHost Name="PreviewHost"/>
                 </Border>
 
@@ -137,9 +137,9 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
-                <TextBlock Text="🔍 Diagnostics" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Text="🔍 Diagnostics" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{DynamicResource AccentBrush}"/>
                 
-                <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="2" Background="{StaticResource EditorBackgroundBrush}">
+                <Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="2" Background="{DynamicResource EditorBackgroundBrush}">
                     <TextBox Name="DiagnosticsTextBox"
                          FontFamily="Consolas"
                          FontSize="12"
@@ -149,10 +149,11 @@
                          VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Auto"
                          Padding="8"
-                         Background="{StaticResource EditorBackgroundBrush}"
-                         Foreground="{StaticResource EditorForegroundBrush}"/>
+                         Background="{DynamicResource EditorBackgroundBrush}"
+                         Foreground="{DynamicResource EditorForegroundBrush}"/>
                 </Border>
             </Grid>
         </Grid>
     </DockPanel>
 </Window>
+
