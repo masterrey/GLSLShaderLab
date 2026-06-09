@@ -11,8 +11,7 @@
         Loaded="OnLoaded"
         Closing="OnClosing"
         PreviewKeyDown="OnPreviewKeyDown"
-        WindowStartupLocation="CenterScreen"
-        Icon="/GLSLShaderLab.App.Wpf;component/Assets/icon.ico">
+        WindowStartupLocation="CenterScreen">
     <DockPanel Background="{StaticResource PrimaryBackgroundBrush}">
         <ToolBar Name="MainToolBar" DockPanel.Dock="Top" Height="50" Padding="8,4" ToolBar.OverflowMode="Never">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

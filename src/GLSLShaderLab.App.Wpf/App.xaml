@@ -4,77 +4,7 @@
              xmlns:local="clr-namespace:GLSLShaderLab.App.Wpf"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- ===== DARK THEME (Default) ===== -->
-        <ResourceDictionary x:Key="DarkTheme">
-            <!-- Primary Colors -->
-            <Color x:Key="PrimaryBackground">#1E1E1E</Color>
-            <Color x:Key="SecondaryBackground">#252526</Color>
-            <Color x:Key="TertiaryBackground">#2D2D30</Color>
-            <Color x:Key="PrimaryForeground">#E0E0E0</Color>
-            <Color x:Key="SecondaryForeground">#A0A0A0</Color>
-            <Color x:Key="AccentColor">#007ACC</Color>
-            
-            <!-- Editor Colors -->
-            <Color x:Key="EditorBackground">#1E1E1E</Color>
-            <Color x:Key="EditorForeground">#D4D4D4</Color>
-            <Color x:Key="ScrollBarBackground">#252526</Color>
-            
-            <!-- Syntax Highlighting -->
-            <Color x:Key="CommentColor">#6A9955</Color>
-            <Color x:Key="KeywordColor">#569CD6</Color>
-            <Color x:Key="TypeColor">#4EC9B0</Color>
-            <Color x:Key="NumberColor">#B5CEA8</Color>
-            <Color x:Key="StringColor">#CE9178</Color>
-            <Color x:Key="PreprocessorColor">#C586C0</Color>
-            <Color x:Key="BuiltinColor">#DCDCAA</Color>
-            
-            <!-- UI Colors -->
-            <Color x:Key="ToolBarBackground">#2D2D30</Color>
-            <Color x:Key="StatusBarBackground">#2D2D30</Color>
-            <Color x:Key="TabBackground">#252526</Color>
-            <Color x:Key="TabForeground">#CCCCCC</Color>
-            <Color x:Key="TabSelectedBackground">#1E1E1E</Color>
-            <Color x:Key="BorderColor">#3E3E42</Color>
-            <Color x:Key="ButtonHoverBackground">#3E3E42</Color>
-            <Color x:Key="ButtonPressedBackground">#007ACC</Color>
-        </ResourceDictionary>
-
-        <!-- ===== LIGHT THEME ===== -->
-        <ResourceDictionary x:Key="LightTheme">
-            <!-- Primary Colors -->
-            <Color x:Key="PrimaryBackground">#FFFFFF</Color>
-            <Color x:Key="SecondaryBackground">#F5F5F5</Color>
-            <Color x:Key="TertiaryBackground">#EFEFEF</Color>
-            <Color x:Key="PrimaryForeground">#1E1E1E</Color>
-            <Color x:Key="SecondaryForeground">#5A5A5A</Color>
-            <Color x:Key="AccentColor">#0066CC</Color>
-            
-            <!-- Editor Colors -->
-            <Color x:Key="EditorBackground">#FFFFFF</Color>
-            <Color x:Key="EditorForeground">#000000</Color>
-            <Color x:Key="ScrollBarBackground">#F5F5F5</Color>
-            
-            <!-- Syntax Highlighting -->
-            <Color x:Key="CommentColor">#008000</Color>
-            <Color x:Key="KeywordColor">#0000FF</Color>
-            <Color x:Key="TypeColor">#2B91AF</Color>
-            <Color x:Key="NumberColor">#098658</Color>
-            <Color x:Key="StringColor">#A31515</Color>
-            <Color x:Key="PreprocessorColor">#0000FF</Color>
-            <Color x:Key="BuiltinColor">#795E26</Color>
-            
-            <!-- UI Colors -->
-            <Color x:Key="ToolBarBackground">#F5F5F5</Color>
-            <Color x:Key="StatusBarBackground">#F5F5F5</Color>
-            <Color x:Key="TabBackground">#EFEFEF</Color>
-            <Color x:Key="TabForeground">#333333</Color>
-            <Color x:Key="TabSelectedBackground">#FFFFFF</Color>
-            <Color x:Key="BorderColor">#CCCCCC</Color>
-            <Color x:Key="ButtonHoverBackground">#E0E0E0</Color>
-            <Color x:Key="ButtonPressedBackground">#0066CC</Color>
-        </ResourceDictionary>
-
-        <!-- ===== MERGED RESOURCES (Active Theme) ===== -->
+        <!-- ===== ACTIVE THEME BRUSHES (Dark by default) ===== -->
         <!-- Primary Colors -->
         <SolidColorBrush x:Key="PrimaryBackgroundBrush" Color="#1E1E1E"/>
         <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="#252526"/>
@@ -206,8 +136,6 @@
             <Setter Property="Margin" Value="8,0,0,0"/>
         </Style>
 
-        <Style TargetType="Border">
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-        </Style>
+
     </Application.Resources>
 </Application>
