@@ -541,21 +541,21 @@ public partial class MainWindow : Window
         }
 
         SetEditorText(EditorTextBox, File.ReadAllText(dialog.FileName));
-        if (_document.RenderMode == RenderMode.ThreeD)
+        var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
+        if (File.Exists(vertexSidecarPath))
         {
-            var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
-            if (File.Exists(vertexSidecarPath))
-            {
-                SetEditorText(VertexEditorTextBox, File.ReadAllText(vertexSidecarPath));
-                AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
-            }
-            else
-            {
-                AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
-            }
+            SetEditorText(VertexEditorTextBox, File.ReadAllText(vertexSidecarPath));
+            AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
+        }
+        else if (_document.RenderMode == RenderMode.ThreeD)
+        {
+            AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
         }
 
         _currentFilePath = dialog.FileName;
+        _document.FragmentSource = GetEditorText(EditorTextBox);
+        _document.VertexSource = GetEditorText(VertexEditorTextBox);
+        _sessionStore.Save(_document);
         UpdateTitle();
         AppendDiagnostic($"Opened: {dialog.FileName}");
     }
@@ -610,13 +610,23 @@ public partial class MainWindow : Window
             }
         }
 
-        File.WriteAllText(path, GetEditorText(EditorTextBox));
-        if (_document.RenderMode == RenderMode.ThreeD)
+        _document.FragmentSource = GetEditorText(EditorTextBox);
+        _document.VertexSource = GetEditorText(VertexEditorTextBox);
+
+        File.WriteAllText(path, _document.FragmentSource);
+
+        var vertexSidecarPath = GetVertexSidecarPath(path);
+        var shouldSaveVertex = _document.RenderMode == RenderMode.ThreeD
+            || !string.IsNullOrWhiteSpace(_document.VertexSource)
+            || File.Exists(vertexSidecarPath);
+
+        if (shouldSaveVertex)
         {
-            var vertexSidecarPath = GetVertexSidecarPath(path);
-            File.WriteAllText(vertexSidecarPath, GetEditorText(VertexEditorTextBox));
+            File.WriteAllText(vertexSidecarPath, _document.VertexSource);
             AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
         }
+
+        _sessionStore.Save(_document);
         UpdateTitle();
         AppendDiagnostic($"Saved: {path}");
         StatusTextBlock.Text = "Saved";

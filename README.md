@@ -7,7 +7,7 @@
 ![Platform: .NET 9.0](https://img.shields.io/badge/Platform-.NET%209.0-512BD4)
 ![Graphics: OpenGL](https://img.shields.io/badge/Graphics-OpenGL%204.5+-412991)
 
-**Ferramenta educacional desenvolvida para a disciplina de Jogos Digitais da Escola de Criatividade, Planejamento e Gestão**  
+**Ferramenta educacional desenvolvida para a disciplina de Jogos Digitais**  
 **Pontifícia Universidade Católica de São Paulo (PUC-SP)**
 
 ---
