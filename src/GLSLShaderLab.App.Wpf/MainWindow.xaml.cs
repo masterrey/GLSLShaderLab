@@ -25,19 +25,11 @@ public partial class MainWindow : Window
     private const double MinEditorFontSize = 10d;
     private const double MaxEditorFontSize = 30d;
     private const double EditorFontStep = 1d;
+    
+    // Theme Support
+    private enum AppThemeMode { Dark, Light }
+    private AppThemeMode _currentTheme = AppThemeMode.Dark;
     private static readonly WpfBrush EditorDefaultForeground = CreateBrush("#D4D4D4");
-    private static readonly (Regex Pattern, WpfBrush Brush, FontWeight? Weight)[] GlslHighlightRules =
-    [
-        (new Regex(@"//.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#6A9955"), null),
-        (new Regex(@"/\*.*?\*/", RegexOptions.Compiled | RegexOptions.Singleline), CreateBrush("#6A9955"), null),
-        (new Regex("^\\s*#\\w+.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#C586C0"), null),
-        (new Regex("\"(?:\\\\.|[^\"\\\\])*\"", RegexOptions.Compiled), CreateBrush("#CE9178"), null),
-        (new Regex(@"\b\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?[fFuU]?\b", RegexOptions.Compiled), CreateBrush("#B5CEA8"), null),
-        (new Regex(@"\b(?:if|else|for|while|do|switch|case|default|break|continue|discard|return|const|in|out|inout|uniform|layout|precision|struct)\b", RegexOptions.Compiled), CreateBrush("#569CD6"), FontWeights.SemiBold),
-        (new Regex(@"\b(?:void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler1D|sampler2D|sampler3D|samplerCube|sampler2DArray|sampler2DShadow)\b", RegexOptions.Compiled), CreateBrush("#4EC9B0"), null),
-        (new Regex(@"\bgl_[A-Za-z0-9_]*\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), null),
-        (new Regex(@"\b(?:iResolution|iTime|iTimeDelta|iFrame|iMouse|iDate|iChannelTime|iChannelResolution|iChannel0|iChannel1|iChannel2|iChannel3|mainImage|fragColor|fragCoord|VertexPos|vertex)\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), null),
-    ];
     private readonly SessionStore _sessionStore = new();
     private readonly ShaderToyRenderer _renderer = new();
     private readonly DispatcherTimer _renderTimer;
@@ -64,6 +56,38 @@ public partial class MainWindow : Window
     private bool _isOrbitingCamera;
     private System.Drawing.Point _lastMousePosition;
     private bool _isApplyingSyntaxHighlighting;
+
+    private (Regex Pattern, WpfBrush Brush, FontWeight? Weight)[] GetGlslHighlightRules()
+    {
+        return _currentTheme switch
+        {
+            AppThemeMode.Dark => new []
+            {
+                (new Regex(@"//.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#6A9955"), (FontWeight?)null),
+                (new Regex(@"/\*.*?\*/", RegexOptions.Compiled | RegexOptions.Singleline), CreateBrush("#6A9955"), (FontWeight?)null),
+                (new Regex("^\\s*#\\w+.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#C586C0"), (FontWeight?)null),
+                (new Regex("\"(?:\\\\.|[^\"\\\\])*\"", RegexOptions.Compiled), CreateBrush("#CE9178"), (FontWeight?)null),
+                (new Regex(@"\b\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?[fFuU]?\b", RegexOptions.Compiled), CreateBrush("#B5CEA8"), (FontWeight?)null),
+                (new Regex(@"\b(?:if|else|for|while|do|switch|case|default|break|continue|discard|return|const|in|out|inout|uniform|layout|precision|struct)\b", RegexOptions.Compiled), CreateBrush("#569CD6"), FontWeights.SemiBold),
+                (new Regex(@"\b(?:void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler1D|sampler2D|sampler3D|samplerCube|sampler2DArray|sampler2DShadow)\b", RegexOptions.Compiled), CreateBrush("#4EC9B0"), (FontWeight?)null),
+                (new Regex(@"\bgl_[A-Za-z0-9_]*\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), (FontWeight?)null),
+                (new Regex(@"\b(?:iResolution|iTime|iTimeDelta|iFrame|iMouse|iDate|iChannelTime|iChannelResolution|iChannel0|iChannel1|iChannel2|iChannel3|mainImage|fragColor|fragCoord|VertexPos|vertex)\b", RegexOptions.Compiled), CreateBrush("#DCDCAA"), (FontWeight?)null),
+            },
+            AppThemeMode.Light => new []
+            {
+                (new Regex(@"//.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#008000"), (FontWeight?)null),
+                (new Regex(@"/\*.*?\*/", RegexOptions.Compiled | RegexOptions.Singleline), CreateBrush("#008000"), (FontWeight?)null),
+                (new Regex("^\\s*#\\w+.*$", RegexOptions.Compiled | RegexOptions.Multiline), CreateBrush("#0000FF"), (FontWeight?)null),
+                (new Regex("\"(?:\\\\.|[^\"\\\\])*\"", RegexOptions.Compiled), CreateBrush("#A31515"), (FontWeight?)null),
+                (new Regex(@"\b\d+(?:\.\d+)?(?:[eE][+\-]?\d+)?[fFuU]?\b", RegexOptions.Compiled), CreateBrush("#098658"), (FontWeight?)null),
+                (new Regex(@"\b(?:if|else|for|while|do|switch|case|default|break|continue|discard|return|const|in|out|inout|uniform|layout|precision|struct)\b", RegexOptions.Compiled), CreateBrush("#0000FF"), FontWeights.SemiBold),
+                (new Regex(@"\b(?:void|bool|int|uint|float|double|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4|bvec2|bvec3|bvec4|mat2|mat3|mat4|mat2x2|mat2x3|mat2x4|mat3x2|mat3x3|mat3x4|mat4x2|mat4x3|mat4x4|sampler1D|sampler2D|sampler3D|samplerCube|sampler2DArray|sampler2DShadow)\b", RegexOptions.Compiled), CreateBrush("#2B91AF"), (FontWeight?)null),
+                (new Regex(@"\bgl_[A-Za-z0-9_]*\b", RegexOptions.Compiled), CreateBrush("#795E26"), (FontWeight?)null),
+                (new Regex(@"\b(?:iResolution|iTime|iTimeDelta|iFrame|iMouse|iDate|iChannelTime|iChannelResolution|iChannel0|iChannel1|iChannel2|iChannel3|mainImage|fragColor|fragCoord|VertexPos|vertex)\b", RegexOptions.Compiled), CreateBrush("#795E26"), (FontWeight?)null),
+            },
+            _ => Array.Empty<(Regex, WpfBrush, FontWeight?)>()
+        };
+    }
 
     public MainWindow()
     {
@@ -480,6 +504,71 @@ public partial class MainWindow : Window
         AppendDiagnostic("Camera reset.");
     }
 
+    private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        _currentTheme = _currentTheme == AppThemeMode.Dark ? AppThemeMode.Light : AppThemeMode.Dark;
+        ApplyTheme();
+        AppendDiagnostic($"Theme changed to: {_currentTheme}");
+        
+        // Re-highlight code with new theme colors
+        if (EditorTextBox.Document.ContentEnd != EditorTextBox.Document.ContentStart)
+        {
+            ApplySyntaxHighlighting(EditorTextBox);
+        }
+        if (VertexEditorTextBox.Document.ContentEnd != VertexEditorTextBox.Document.ContentStart)
+        {
+            ApplySyntaxHighlighting(VertexEditorTextBox);
+        }
+    }
+
+    private void ApplyTheme()
+    {
+        var themeDict = _currentTheme == AppThemeMode.Dark 
+            ? (ResourceDictionary)Resources["DarkTheme"]
+            : (ResourceDictionary)Resources["LightTheme"];
+
+        if (themeDict == null)
+        {
+            return;
+        }
+
+        // Update merged resources with new theme colors
+        var updateColors = new Dictionary<string, SolidColorBrush>
+        {
+            { "PrimaryBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#1E1E1E" : "#FFFFFF") },
+            { "SecondaryBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#252526" : "#F5F5F5") },
+            { "TertiaryBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#EFEFEF") },
+            { "PrimaryForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#E0E0E0" : "#1E1E1E") },
+            { "SecondaryForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#A0A0A0" : "#5A5A5A") },
+            { "EditorBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#1E1E1E" : "#FFFFFF") },
+            { "EditorForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#D4D4D4" : "#000000") },
+            { "ToolBarBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#F5F5F5") },
+            { "StatusBarBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#F5F5F5") },
+            { "TabBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#252526" : "#EFEFEF") },
+            { "TabForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#CCCCCC" : "#333333") },
+            { "TabSelectedBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#1E1E1E" : "#FFFFFF") },
+            { "BorderBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#3E3E42" : "#CCCCCC") },
+            { "ButtonHoverBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#3E3E42" : "#E0E0E0") },
+            { "ButtonPressedBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#007ACC" : "#0066CC") },
+        };
+
+        foreach (var kvp in updateColors)
+        {
+            if (Resources.Contains(kvp.Key))
+            {
+                Resources[kvp.Key] = kvp.Value;
+            }
+        }
+    }
+
+    private static SolidColorBrush CreateColorBrush(string hexColor)
+    {
+        var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hexColor)!;
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
+    }
+
     private void LoadChannel(int channel)
     {
         if (_glControl is null)
@@ -845,12 +934,17 @@ public partial class MainWindow : Window
         try
         {
             var document = editor.Document;
+            var defaultForeground = _currentTheme == AppThemeMode.Dark 
+                ? CreateBrush("#D4D4D4") 
+                : CreateBrush("#000000");
+                
             var fullRange = new TextRange(document.ContentStart, document.ContentEnd);
-            fullRange.ApplyPropertyValue(TextElement.ForegroundProperty, EditorDefaultForeground);
+            fullRange.ApplyPropertyValue(TextElement.ForegroundProperty, defaultForeground);
             fullRange.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Normal);
 
             var text = GetEditorText(editor);
-            foreach (var rule in GlslHighlightRules)
+            var highlightRules = GetGlslHighlightRules();
+            foreach (var rule in highlightRules)
             {
                 foreach (Match match in rule.Pattern.Matches(text))
                 {
@@ -914,3 +1008,4 @@ public partial class MainWindow : Window
         return brush;
     }
 }
+

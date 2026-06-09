@@ -4,6 +4,210 @@
              xmlns:local="clr-namespace:GLSLShaderLab.App.Wpf"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <!-- ===== DARK THEME (Default) ===== -->
+        <ResourceDictionary x:Key="DarkTheme">
+            <!-- Primary Colors -->
+            <Color x:Key="PrimaryBackground">#1E1E1E</Color>
+            <Color x:Key="SecondaryBackground">#252526</Color>
+            <Color x:Key="TertiaryBackground">#2D2D30</Color>
+            <Color x:Key="PrimaryForeground">#E0E0E0</Color>
+            <Color x:Key="SecondaryForeground">#A0A0A0</Color>
+            <Color x:Key="AccentColor">#007ACC</Color>
+            
+            <!-- Editor Colors -->
+            <Color x:Key="EditorBackground">#1E1E1E</Color>
+            <Color x:Key="EditorForeground">#D4D4D4</Color>
+            <Color x:Key="ScrollBarBackground">#252526</Color>
+            
+            <!-- Syntax Highlighting -->
+            <Color x:Key="CommentColor">#6A9955</Color>
+            <Color x:Key="KeywordColor">#569CD6</Color>
+            <Color x:Key="TypeColor">#4EC9B0</Color>
+            <Color x:Key="NumberColor">#B5CEA8</Color>
+            <Color x:Key="StringColor">#CE9178</Color>
+            <Color x:Key="PreprocessorColor">#C586C0</Color>
+            <Color x:Key="BuiltinColor">#DCDCAA</Color>
+            
+            <!-- UI Colors -->
+            <Color x:Key="ToolBarBackground">#2D2D30</Color>
+            <Color x:Key="StatusBarBackground">#2D2D30</Color>
+            <Color x:Key="TabBackground">#252526</Color>
+            <Color x:Key="TabForeground">#CCCCCC</Color>
+            <Color x:Key="TabSelectedBackground">#1E1E1E</Color>
+            <Color x:Key="BorderColor">#3E3E42</Color>
+            <Color x:Key="ButtonHoverBackground">#3E3E42</Color>
+            <Color x:Key="ButtonPressedBackground">#007ACC</Color>
+        </ResourceDictionary>
+
+        <!-- ===== LIGHT THEME ===== -->
+        <ResourceDictionary x:Key="LightTheme">
+            <!-- Primary Colors -->
+            <Color x:Key="PrimaryBackground">#FFFFFF</Color>
+            <Color x:Key="SecondaryBackground">#F5F5F5</Color>
+            <Color x:Key="TertiaryBackground">#EFEFEF</Color>
+            <Color x:Key="PrimaryForeground">#1E1E1E</Color>
+            <Color x:Key="SecondaryForeground">#5A5A5A</Color>
+            <Color x:Key="AccentColor">#0066CC</Color>
+            
+            <!-- Editor Colors -->
+            <Color x:Key="EditorBackground">#FFFFFF</Color>
+            <Color x:Key="EditorForeground">#000000</Color>
+            <Color x:Key="ScrollBarBackground">#F5F5F5</Color>
+            
+            <!-- Syntax Highlighting -->
+            <Color x:Key="CommentColor">#008000</Color>
+            <Color x:Key="KeywordColor">#0000FF</Color>
+            <Color x:Key="TypeColor">#2B91AF</Color>
+            <Color x:Key="NumberColor">#098658</Color>
+            <Color x:Key="StringColor">#A31515</Color>
+            <Color x:Key="PreprocessorColor">#0000FF</Color>
+            <Color x:Key="BuiltinColor">#795E26</Color>
+            
+            <!-- UI Colors -->
+            <Color x:Key="ToolBarBackground">#F5F5F5</Color>
+            <Color x:Key="StatusBarBackground">#F5F5F5</Color>
+            <Color x:Key="TabBackground">#EFEFEF</Color>
+            <Color x:Key="TabForeground">#333333</Color>
+            <Color x:Key="TabSelectedBackground">#FFFFFF</Color>
+            <Color x:Key="BorderColor">#CCCCCC</Color>
+            <Color x:Key="ButtonHoverBackground">#E0E0E0</Color>
+            <Color x:Key="ButtonPressedBackground">#0066CC</Color>
+        </ResourceDictionary>
+
+        <!-- ===== MERGED RESOURCES (Active Theme) ===== -->
+        <!-- Primary Colors -->
+        <SolidColorBrush x:Key="PrimaryBackgroundBrush" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="SecondaryBackgroundBrush" Color="#252526"/>
+        <SolidColorBrush x:Key="TertiaryBackgroundBrush" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#A0A0A0"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#007ACC"/>
+        
+        <!-- Editor -->
+        <SolidColorBrush x:Key="EditorBackgroundBrush" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="EditorForegroundBrush" Color="#D4D4D4"/>
+        <SolidColorBrush x:Key="ScrollBarBackgroundBrush" Color="#252526"/>
+        
+        <!-- Syntax -->
+        <SolidColorBrush x:Key="CommentBrush" Color="#6A9955"/>
+        <SolidColorBrush x:Key="KeywordBrush" Color="#569CD6"/>
+        <SolidColorBrush x:Key="TypeBrush" Color="#4EC9B0"/>
+        <SolidColorBrush x:Key="NumberBrush" Color="#B5CEA8"/>
+        <SolidColorBrush x:Key="StringBrush" Color="#CE9178"/>
+        <SolidColorBrush x:Key="PreprocessorBrush" Color="#C586C0"/>
+        <SolidColorBrush x:Key="BuiltinBrush" Color="#DCDCAA"/>
+        
+        <!-- UI -->
+        <SolidColorBrush x:Key="ToolBarBackgroundBrush" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="StatusBarBackgroundBrush" Color="#2D2D30"/>
+        <SolidColorBrush x:Key="TabBackgroundBrush" Color="#252526"/>
+        <SolidColorBrush x:Key="TabForegroundBrush" Color="#CCCCCC"/>
+        <SolidColorBrush x:Key="TabSelectedBackgroundBrush" Color="#1E1E1E"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="ButtonHoverBackgroundBrush" Color="#3E3E42"/>
+        <SolidColorBrush x:Key="ButtonPressedBackgroundBrush" Color="#007ACC"/>
+
+        <!-- ===== GLOBAL STYLES ===== -->
+        <Style TargetType="Window">
+            <Setter Property="Background" Value="{StaticResource PrimaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <Style TargetType="ToolBar">
+            <Setter Property="Background" Value="{StaticResource ToolBarBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource TertiaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ButtonHoverBackgroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ButtonPressedBackgroundBrush}"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource SecondaryBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Margin" Value="2"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource EditorBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource EditorForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+
+        <Style TargetType="RichTextBox">
+            <Setter Property="Background" Value="{StaticResource EditorBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource EditorForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="{StaticResource TabBackgroundBrush}"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="{StaticResource TabBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TabForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="12,6"/>
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="8"/>
+        </Style>
+
+        <Style TargetType="StatusBar">
+            <Setter Property="Background" Value="{StaticResource StatusBarBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0,1,0,0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+
+        <Style TargetType="Border">
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        </Style>
     </Application.Resources>
 </Application>

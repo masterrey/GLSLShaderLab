@@ -10,47 +10,71 @@
         Width="1500"
         Loaded="OnLoaded"
         Closing="OnClosing"
-        PreviewKeyDown="OnPreviewKeyDown">
-    <DockPanel>
-        <ToolBar Name="MainToolBar" DockPanel.Dock="Top">
-            <Button Name="OpenButton" Content="Open..." Click="OpenButton_Click" Margin="2"/>
-            <Button Name="SaveButton" Content="Save" Click="SaveButton_Click" Margin="2"/>
-            <Button Name="SaveAsButton" Content="Save As..." Click="SaveAsButton_Click" Margin="2"/>
-            <Separator/>
-            <Button Name="CompileButton" Content="Compile" Click="CompileButton_Click" Margin="2"/>
-            <CheckBox Name="AutoCompileCheckBox" Content="Auto" Checked="AutoCompileCheckBox_OnChanged" Unchecked="AutoCompileCheckBox_OnChanged" Margin="8,0,0,0"/>
-            <Separator/>
-            <Button Name="PlayPauseButton" Content="Pause" Click="PlayPauseButton_Click" Margin="2"/>
-            <Button Name="ResetTimeButton" Content="Reset Time" Click="ResetTimeButton_Click" Margin="2"/>
-            <Button Name="FullscreenButton" Content="Fullscreen" Click="FullscreenButton_Click" Margin="2"/>
-            <Separator/>
-            <TextBlock Text="Mode:" VerticalAlignment="Center" Margin="4,0"/>
-            <ComboBox Name="RenderModeComboBox" Width="120" SelectionChanged="RenderModeComboBox_SelectionChanged">
-                <ComboBoxItem Content="2D" IsSelected="True"/>
-                <ComboBoxItem Content="3D (Advanced)"/>
-            </ComboBox>
-            <TextBlock Text="Model:" VerticalAlignment="Center" Margin="8,0,4,0"/>
-            <ComboBox Name="ModelComboBox" Width="180" SelectionChanged="ModelComboBox_SelectionChanged"/>
-            <Button Name="ResetCameraButton" Content="Reset Camera" Click="ResetCameraButton_Click" Margin="2"/>
-            <Separator/>
-            <TextBlock Text="Template:" VerticalAlignment="Center" Margin="4,0"/>
-            <ComboBox Name="TemplateComboBox" Width="160" SelectionChanged="TemplateComboBox_SelectionChanged"/>
+        PreviewKeyDown="OnPreviewKeyDown"
+        WindowStartupLocation="CenterScreen"
+        Icon="/GLSLShaderLab.App.Wpf;component/Assets/icon.ico">
+    <DockPanel Background="{StaticResource PrimaryBackgroundBrush}">
+        <ToolBar Name="MainToolBar" DockPanel.Dock="Top" Height="50" Padding="8,4" ToolBar.OverflowMode="Never">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- File Operations -->
+                <TextBlock Text="📁" FontSize="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <Button Name="OpenButton" Content="Open..." Click="OpenButton_Click" Padding="10,6" Margin="2"/>
+                <Button Name="SaveButton" Content="Save" Click="SaveButton_Click" Padding="10,6" Margin="2"/>
+                <Button Name="SaveAsButton" Content="Save As..." Click="SaveAsButton_Click" Padding="10,6" Margin="2"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,0"/>
+                
+                <!-- Compilation -->
+                <TextBlock Text="⚙️" FontSize="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <Button Name="CompileButton" Content="Compile" Click="CompileButton_Click" Padding="10,6" Margin="2"/>
+                <CheckBox Name="AutoCompileCheckBox" Content="Auto Compile" Checked="AutoCompileCheckBox_OnChanged" Unchecked="AutoCompileCheckBox_OnChanged" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,0"/>
+                
+                <!-- Playback -->
+                <TextBlock Text="▶️" FontSize="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <Button Name="PlayPauseButton" Content="Pause" Click="PlayPauseButton_Click" Padding="10,6" Margin="2"/>
+                <Button Name="ResetTimeButton" Content="Reset Time" Click="ResetTimeButton_Click" Padding="10,6" Margin="2"/>
+                <Button Name="FullscreenButton" Content="Fullscreen" Click="FullscreenButton_Click" Padding="10,6" Margin="2"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,0"/>
+                
+                <!-- Render Settings -->
+                <TextBlock Text="🎨" FontSize="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Mode:" VerticalAlignment="Center" Margin="4,0,4,0"/>
+                <ComboBox Name="RenderModeComboBox" Width="100" SelectionChanged="RenderModeComboBox_SelectionChanged" Padding="6,4" VerticalAlignment="Center">
+                    <ComboBoxItem Content="2D" IsSelected="True"/>
+                    <ComboBoxItem Content="3D (Advanced)"/>
+                </ComboBox>
+                <TextBlock Text="Model:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <ComboBox Name="ModelComboBox" Width="150" SelectionChanged="ModelComboBox_SelectionChanged" Padding="6,4" VerticalAlignment="Center"/>
+                <Button Name="ResetCameraButton" Content="Reset Camera" Click="ResetCameraButton_Click" Padding="10,6" Margin="2"/>
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,0"/>
+                
+                <!-- Templates -->
+                <TextBlock Text="📋" FontSize="16" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                <TextBlock Text="Template:" VerticalAlignment="Center" Margin="4,0,4,0"/>
+                <ComboBox Name="TemplateComboBox" Width="140" SelectionChanged="TemplateComboBox_SelectionChanged" Padding="6,4" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <!-- Theme Toggle (Right-aligned) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="8,0"/>
+                <Button Name="ThemeToggleButton" Content="🌓 Light/Dark" Click="ThemeToggleButton_Click" Padding="10,6" Margin="2"/>
+            </StackPanel>
         </ToolBar>
 
-        <StatusBar Name="MainStatusBar" DockPanel.Dock="Bottom">
+        <StatusBar Name="MainStatusBar" DockPanel.Dock="Bottom" Height="28" Padding="4">
             <StatusBarItem>
-                <TextBlock Name="StatusTextBlock" Text="Ready"/>
+                <TextBlock Name="StatusTextBlock" Text="Ready" Foreground="{StaticResource PrimaryForegroundBrush}"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Name="FpsTextBlock" Text="FPS: 0"/>
+                <TextBlock Name="FpsTextBlock" Text="FPS: 0" Foreground="{StaticResource SecondaryForegroundBrush}"/>
             </StatusBarItem>
         </StatusBar>
 
-        <Grid Name="MainContentGrid">
+        <Grid Name="MainContentGrid" Background="{StaticResource PrimaryBackgroundBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Name="PreviewRowDefinition" Height="*"/>
-                <RowDefinition Name="DiagnosticsRowDefinition" Height="220"/>
+                <RowDefinition Name="DiagnosticsRowDefinition" Height="200"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Name="EditorColumnDefinition" Width="1.2*"/>
@@ -58,59 +82,87 @@
             </Grid.ColumnDefinitions>
 
             <Grid Name="EditorPaneGrid" Grid.Row="0" Grid.Column="0" Margin="8">
-                <TabControl Name="ShaderEditorsTabControl">
-                    <TabItem Header="Fragment Shader">
-                        <RichTextBox Name="EditorTextBox"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Text="📝 Shader Editor" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
+                
+                <TabControl Name="ShaderEditorsTabControl" Grid.Row="1" Background="{StaticResource SecondaryBackgroundBrush}" Foreground="{StaticResource PrimaryForegroundBrush}">
+                    <TabItem Header="Fragment Shader" Background="{StaticResource TabBackgroundBrush}" Foreground="{StaticResource TabForegroundBrush}">
+                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource EditorBackgroundBrush}">
+                            <RichTextBox Name="EditorTextBox"
                                      Margin="4"
                                      FontFamily="Consolas"
                                      FontSize="14"
                                      VerticalScrollBarVisibility="Auto"
                                      HorizontalScrollBarVisibility="Auto"
                                      PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                     TextChanged="EditorTextBox_TextChanged"/>
+                                     TextChanged="EditorTextBox_TextChanged"
+                                     Background="{StaticResource EditorBackgroundBrush}"
+                                     Foreground="{StaticResource EditorForegroundBrush}"/>
+                        </Border>
                     </TabItem>
-                    <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)">
-                        <RichTextBox Name="VertexEditorTextBox"
+                    <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)" Background="{StaticResource TabBackgroundBrush}" Foreground="{StaticResource TabForegroundBrush}">
+                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource EditorBackgroundBrush}">
+                            <RichTextBox Name="VertexEditorTextBox"
                                      Margin="4"
                                      FontFamily="Consolas"
                                      FontSize="14"
                                      VerticalScrollBarVisibility="Auto"
                                      HorizontalScrollBarVisibility="Auto"
                                      PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                     TextChanged="EditorTextBox_TextChanged"/>
+                                     TextChanged="EditorTextBox_TextChanged"
+                                     Background="{StaticResource EditorBackgroundBrush}"
+                                     Foreground="{StaticResource EditorForegroundBrush}"/>
+                        </Border>
                     </TabItem>
                 </TabControl>
             </Grid>
 
-            <Grid Name="PreviewPaneGrid" Grid.Row="0" Grid.Column="1">
+            <Grid Name="PreviewPaneGrid" Grid.Row="0" Grid.Column="1" Margin="8,8,8,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Name="PreviewHeaderRowDefinition" Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Name="PreviewChannelsRowDefinition" Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Name="PreviewTitleTextBlock" Text="Preview" FontWeight="Bold" Margin="8"/>
-                <Border Name="PreviewBorder" Grid.Row="1" Margin="8" BorderBrush="#444" BorderThickness="1">
+                <TextBlock Name="PreviewTitleTextBlock" Text="👁️ Preview" FontWeight="Bold" FontSize="14" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
+                <Border Name="PreviewBorder" Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="2" CornerRadius="4" Background="{StaticResource SecondaryBackgroundBrush}">
                     <wf:WindowsFormsHost Name="PreviewHost"/>
                 </Border>
 
-                <UniformGrid Name="ChannelButtonsGrid" Grid.Row="2" Columns="4" Margin="8" HorizontalAlignment="Stretch">
-                    <Button Content="Load iChannel0" Click="LoadChannel0_Click" Margin="2"/>
-                    <Button Content="Load iChannel1" Click="LoadChannel1_Click" Margin="2"/>
-                    <Button Content="Load iChannel2" Click="LoadChannel2_Click" Margin="2"/>
-                    <Button Content="Load iChannel3" Click="LoadChannel3_Click" Margin="2"/>
+                <UniformGrid Name="ChannelButtonsGrid" Grid.Row="2" Columns="4" Margin="0,8,0,0" HorizontalAlignment="Stretch">
+                    <Button Content="Load iChannel0" Click="LoadChannel0_Click" Margin="2" Padding="6,4"/>
+                    <Button Content="Load iChannel1" Click="LoadChannel1_Click" Margin="2" Padding="6,4"/>
+                    <Button Content="Load iChannel2" Click="LoadChannel2_Click" Margin="2" Padding="6,4"/>
+                    <Button Content="Load iChannel3" Click="LoadChannel3_Click" Margin="2" Padding="6,4"/>
                 </UniformGrid>
             </Grid>
 
-            <GroupBox Name="DiagnosticsGroupBox" Header="Diagnostics" Grid.Row="1" Grid.ColumnSpan="2" Margin="8">
-                <TextBox Name="DiagnosticsTextBox"
+            <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="8" Name="DiagnosticsGroupBox">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Text="🔍 Diagnostics" FontSize="14" FontWeight="Bold" Margin="0,0,0,8" Foreground="{StaticResource AccentBrush}"/>
+                
+                <Border Grid.Row="1" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="2" Background="{StaticResource EditorBackgroundBrush}">
+                    <TextBox Name="DiagnosticsTextBox"
                          FontFamily="Consolas"
                          FontSize="12"
                          IsReadOnly="True"
                          TextWrapping="Wrap"
+                         AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto"
-                         HorizontalScrollBarVisibility="Auto"/>
-            </GroupBox>
+                         HorizontalScrollBarVisibility="Auto"
+                         Padding="8"
+                         Background="{StaticResource EditorBackgroundBrush}"
+                         Foreground="{StaticResource EditorForegroundBrush}"/>
+                </Border>
+            </Grid>
         </Grid>
     </DockPanel>
 </Window>
