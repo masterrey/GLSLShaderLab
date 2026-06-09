@@ -132,7 +132,7 @@
                                         <TextBlock Name="VertexEditorLineNumbers"
                                                    FontFamily="Consolas"
                                                    FontSize="14"
-                                                   Padding="8,3,8,0"
+                                                   Padding="8,10,8,0"
                                                    Background="{DynamicResource SecondaryBackgroundBrush}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextAlignment="Right"/>
