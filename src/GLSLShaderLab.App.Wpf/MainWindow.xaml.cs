@@ -331,6 +331,10 @@ public partial class MainWindow : Window
 
         EditorTextBox.FontSize = nextSize;
         VertexEditorTextBox.FontSize = nextSize;
+        EditorLineNumbers.FontSize = nextSize;
+        EditorLineNumbers.LineHeight = nextSize * 1.1;
+        VertexEditorLineNumbers.FontSize = nextSize;
+        VertexEditorLineNumbers.LineHeight = nextSize * 1.1;
         e.Handled = true;
     }
 
