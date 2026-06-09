@@ -673,12 +673,13 @@ public partial class MainWindow : Window
 
     private void SaveAsButton_Click(object sender, RoutedEventArgs e)
     {
+        bool isVertexTab = IsVertexTabSelected();
         var dialog = new Microsoft.Win32.SaveFileDialog
         {
-            Filter = "Fragment Shaders|*.frag|All Files|*.*",
+            Filter = isVertexTab ? "Vertex Shaders|*.vert|All Files|*.*" : "Fragment Shaders|*.frag|All Files|*.*",
             FileName = string.IsNullOrWhiteSpace(_currentFilePath)
-                ? "shader.frag"
-                : Path.GetFileName(_currentFilePath)
+                ? (isVertexTab ? "shader.vert" : "shader.frag")
+                : (isVertexTab ? Path.ChangeExtension(Path.GetFileName(_currentFilePath), ".vert") : Path.GetFileName(_currentFilePath))
         };
 
         if (dialog.ShowDialog(this) != true)
@@ -686,11 +687,14 @@ public partial class MainWindow : Window
             return;
         }
 
-        _currentFilePath = dialog.FileName;
-        SaveToFile(_currentFilePath);
+        if (!isVertexTab)
+        {
+            _currentFilePath = dialog.FileName;
+        }
+        SaveToFile(dialog.FileName, isVertexOnly: isVertexTab);
     }
 
-    private void SaveToFile(string path, bool confirmOverwrite = false)
+    private void SaveToFile(string path, bool confirmOverwrite = false, bool isVertexOnly = false)
     {
         if (confirmOverwrite && File.Exists(path))
         {
@@ -712,22 +716,31 @@ public partial class MainWindow : Window
         _document.FragmentSource = GetEditorText(EditorTextBox);
         _document.VertexSource = GetEditorText(VertexEditorTextBox);
 
-        File.WriteAllText(path, _document.FragmentSource);
-
-        var vertexSidecarPath = GetVertexSidecarPath(path);
-        var shouldSaveVertex = _document.RenderMode == RenderMode.ThreeD
-            || !string.IsNullOrWhiteSpace(_document.VertexSource)
-            || File.Exists(vertexSidecarPath);
-
-        if (shouldSaveVertex)
+        if (isVertexOnly)
         {
-            File.WriteAllText(vertexSidecarPath, _document.VertexSource);
-            AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
+            File.WriteAllText(path, _document.VertexSource);
+            AppendDiagnostic($"Saved vertex shader: {path}");
+        }
+        else
+        {
+            File.WriteAllText(path, _document.FragmentSource);
+
+            var vertexSidecarPath = GetVertexSidecarPath(path);
+            var shouldSaveVertex = _document.RenderMode == RenderMode.ThreeD
+                || !string.IsNullOrWhiteSpace(_document.VertexSource)
+                || File.Exists(vertexSidecarPath);
+
+            if (shouldSaveVertex)
+            {
+                File.WriteAllText(vertexSidecarPath, _document.VertexSource);
+                AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
+            }
+
+            AppendDiagnostic($"Saved fragment shader: {path}");
         }
 
         _sessionStore.Save(_document);
         UpdateTitle();
-        AppendDiagnostic($"Saved: {path}");
         StatusTextBlock.Text = "Saved";
     }
 
