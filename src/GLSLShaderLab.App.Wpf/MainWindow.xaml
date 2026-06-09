@@ -85,30 +85,70 @@
                 <TabControl Name="ShaderEditorsTabControl" Grid.Row="1" Background="{DynamicResource SecondaryBackgroundBrush}" Foreground="{DynamicResource PrimaryForegroundBrush}">
                     <TabItem Header="Fragment Shader" Background="{DynamicResource TabBackgroundBrush}" Foreground="{DynamicResource TabForegroundBrush}">
                         <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource EditorBackgroundBrush}">
-                            <RichTextBox Name="EditorTextBox"
-                                     Margin="4"
-                                     FontFamily="Consolas"
-                                     FontSize="14"
-                                     VerticalScrollBarVisibility="Auto"
-                                     HorizontalScrollBarVisibility="Auto"
-                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                     TextChanged="EditorTextBox_TextChanged"
-                                     Background="{DynamicResource EditorBackgroundBrush}"
-                                     Foreground="{DynamicResource EditorForegroundBrush}"/>
+                            <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0" Padding="0">
+                                    <ScrollViewer Name="EditorLineNumbersScroller"
+                                                  VerticalScrollBarVisibility="Hidden"
+                                                  HorizontalScrollBarVisibility="Hidden"
+                                                  Padding="0">
+                                        <TextBlock Name="EditorLineNumbers"
+                                                   FontFamily="Consolas"
+                                                   FontSize="14"
+                                                   Padding="8,10,8,0"
+                                                   Background="{DynamicResource SecondaryBackgroundBrush}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextAlignment="Right"/>
+                                    </ScrollViewer>
+                                </Border>
+                                <RichTextBox Name="EditorTextBox"
+                                             Grid.Column="1"
+                                             FontFamily="Consolas"
+                                             FontSize="14"
+                                             VerticalScrollBarVisibility="Auto"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                             TextChanged="EditorTextBox_TextChanged"
+                                             Background="{DynamicResource EditorBackgroundBrush}"
+                                             Foreground="{DynamicResource EditorForegroundBrush}"/>
+                            </Grid>
                         </Border>
                     </TabItem>
                     <TabItem Name="VertexEditorTab" Header="Vertex Shader (3D)" Background="{DynamicResource TabBackgroundBrush}" Foreground="{DynamicResource TabForegroundBrush}">
                         <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Background="{DynamicResource EditorBackgroundBrush}">
-                            <RichTextBox Name="VertexEditorTextBox"
-                                     Margin="4"
-                                     FontFamily="Consolas"
-                                     FontSize="14"
-                                     VerticalScrollBarVisibility="Auto"
-                                     HorizontalScrollBarVisibility="Auto"
-                                     PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
-                                     TextChanged="EditorTextBox_TextChanged"
-                                     Background="{DynamicResource EditorBackgroundBrush}"
-                                     Foreground="{DynamicResource EditorForegroundBrush}"/>
+                            <Grid Margin="4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0" Padding="0">
+                                    <ScrollViewer Name="VertexEditorLineNumbersScroller"
+                                                  VerticalScrollBarVisibility="Hidden"
+                                                  HorizontalScrollBarVisibility="Hidden"
+                                                  Padding="0">
+                                        <TextBlock Name="VertexEditorLineNumbers"
+                                                   FontFamily="Consolas"
+                                                   FontSize="14"
+                                                   Padding="8,3,8,0"
+                                                   Background="{DynamicResource SecondaryBackgroundBrush}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextAlignment="Right"/>
+                                    </ScrollViewer>
+                                </Border>
+                                <RichTextBox Name="VertexEditorTextBox"
+                                             Grid.Column="1"
+                                             FontFamily="Consolas"
+                                             FontSize="14"
+                                             VerticalScrollBarVisibility="Auto"
+                                             HorizontalScrollBarVisibility="Auto"
+                                             PreviewMouseWheel="EditorTextBox_PreviewMouseWheel"
+                                             TextChanged="EditorTextBox_TextChanged"
+                                             Background="{DynamicResource EditorBackgroundBrush}"
+                                             Foreground="{DynamicResource EditorForegroundBrush}"/>
+                            </Grid>
                         </Border>
                     </TabItem>
                 </TabControl>

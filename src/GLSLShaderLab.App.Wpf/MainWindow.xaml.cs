@@ -145,6 +145,8 @@ public partial class MainWindow : Window
 
         _renderTimer.Start();
         AppendDiagnostic("Studio ready.");
+
+        SetupLineNumberScrollSync();
     }
 
     private void InitializeGlHost()
@@ -938,6 +940,15 @@ public partial class MainWindow : Window
         }
 
         ApplySyntaxHighlighting(editor);
+
+        if (editor == EditorTextBox)
+        {
+            UpdateLineNumbers(EditorTextBox, EditorLineNumbers);
+        }
+        else if (editor == VertexEditorTextBox)
+        {
+            UpdateLineNumbers(VertexEditorTextBox, VertexEditorLineNumbers);
+        }
     }
 
     private static string GetEditorText(WpfRichTextBox editor)
@@ -1021,6 +1032,39 @@ public partial class MainWindow : Window
         }
 
         return document.ContentEnd;
+    }
+
+    private void UpdateLineNumbers(WpfRichTextBox editor, TextBlock lineNumberBlock)
+    {
+        var text = GetEditorText(editor);
+        var lineCount = text.Split('\n').Length;
+
+        var lineNumbers = new System.Text.StringBuilder();
+        for (int i = 1; i <= lineCount; i++)
+        {
+            lineNumbers.AppendLine(i.ToString());
+        }
+
+        lineNumberBlock.Text = lineNumbers.ToString();
+
+        // Usar o mesmo line height do editor para alinhamento perfeito
+        lineNumberBlock.LineHeight = editor.FontSize * 1.0;
+    }
+
+    private void SetupLineNumberScrollSync()
+    {
+        EditorTextBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler(EditorTextBox_ScrollChanged));
+        VertexEditorTextBox.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler(VertexEditorTextBox_ScrollChanged));
+    }
+
+    private void EditorTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        EditorLineNumbersScroller.ScrollToVerticalOffset(e.VerticalOffset);
+    }
+
+    private void VertexEditorTextBox_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        VertexEditorLineNumbersScroller.ScrollToVerticalOffset(e.VerticalOffset);
     }
 
     private static WpfBrush CreateBrush(string hexColor)
