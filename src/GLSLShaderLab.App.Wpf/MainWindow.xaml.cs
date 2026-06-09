@@ -523,16 +523,7 @@ public partial class MainWindow : Window
 
     private void ApplyTheme()
     {
-        var themeDict = _currentTheme == AppThemeMode.Dark 
-            ? (ResourceDictionary)Resources["DarkTheme"]
-            : (ResourceDictionary)Resources["LightTheme"];
-
-        if (themeDict == null)
-        {
-            return;
-        }
-
-        // Update merged resources with new theme colors
+        // Update all merged resources with new theme colors
         var updateColors = new Dictionary<string, SolidColorBrush>
         {
             { "PrimaryBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#1E1E1E" : "#FFFFFF") },
@@ -540,8 +531,10 @@ public partial class MainWindow : Window
             { "TertiaryBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#EFEFEF") },
             { "PrimaryForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#E0E0E0" : "#1E1E1E") },
             { "SecondaryForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#A0A0A0" : "#5A5A5A") },
+            { "AccentBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#007ACC" : "#0066CC") },
             { "EditorBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#1E1E1E" : "#FFFFFF") },
             { "EditorForegroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#D4D4D4" : "#000000") },
+            { "ScrollBarBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#252526" : "#F5F5F5") },
             { "ToolBarBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#F5F5F5") },
             { "StatusBarBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#2D2D30" : "#F5F5F5") },
             { "TabBackgroundBrush", CreateColorBrush(_currentTheme == AppThemeMode.Dark ? "#252526" : "#EFEFEF") },
@@ -554,11 +547,12 @@ public partial class MainWindow : Window
 
         foreach (var kvp in updateColors)
         {
-            if (Resources.Contains(kvp.Key))
-            {
-                Resources[kvp.Key] = kvp.Value;
-            }
+            Resources[kvp.Key] = kvp.Value;
         }
+
+        // Force window background and foreground update
+        Background = (SolidColorBrush)Resources["PrimaryBackgroundBrush"];
+        Foreground = (SolidColorBrush)Resources["PrimaryForegroundBrush"];
     }
 
     private static SolidColorBrush CreateColorBrush(string hexColor)
