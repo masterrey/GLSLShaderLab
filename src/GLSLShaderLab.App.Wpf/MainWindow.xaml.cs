@@ -15,6 +15,7 @@ namespace GLSLShaderLab.App.Wpf;
 
 public partial class MainWindow : Window
 {
+    private static readonly string[] FundamentalDirectories = ["Shaders", "Mesh", "Textures"];
     private readonly SessionStore _sessionStore = new();
     private readonly ShaderToyRenderer _renderer = new();
     private readonly DispatcherTimer _renderTimer;
@@ -60,6 +61,7 @@ public partial class MainWindow : Window
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        EnsureFundamentalDirectories();
         _document = _sessionStore.LoadOrDefault();
         if (string.IsNullOrWhiteSpace(_document.VertexSource))
         {
@@ -491,15 +493,18 @@ public partial class MainWindow : Window
         }
 
         EditorTextBox.Text = File.ReadAllText(dialog.FileName);
-        var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
-        if (File.Exists(vertexSidecarPath))
+        if (_document.RenderMode == RenderMode.ThreeD)
         {
-            VertexEditorTextBox.Text = File.ReadAllText(vertexSidecarPath);
-            AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
-        }
-        else
-        {
-            AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
+            var vertexSidecarPath = GetVertexSidecarPath(dialog.FileName);
+            if (File.Exists(vertexSidecarPath))
+            {
+                VertexEditorTextBox.Text = File.ReadAllText(vertexSidecarPath);
+                AppendDiagnostic($"Opened vertex: {vertexSidecarPath}");
+            }
+            else
+            {
+                AppendDiagnostic($"Vertex file not found: {vertexSidecarPath}");
+            }
         }
 
         _currentFilePath = dialog.FileName;
@@ -558,11 +563,14 @@ public partial class MainWindow : Window
         }
 
         File.WriteAllText(path, EditorTextBox.Text);
-        var vertexSidecarPath = GetVertexSidecarPath(path);
-        File.WriteAllText(vertexSidecarPath, VertexEditorTextBox.Text);
+        if (_document.RenderMode == RenderMode.ThreeD)
+        {
+            var vertexSidecarPath = GetVertexSidecarPath(path);
+            File.WriteAllText(vertexSidecarPath, VertexEditorTextBox.Text);
+            AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
+        }
         UpdateTitle();
         AppendDiagnostic($"Saved: {path}");
-        AppendDiagnostic($"Saved vertex: {vertexSidecarPath}");
         StatusTextBlock.Text = "Saved";
     }
 
@@ -653,6 +661,28 @@ public partial class MainWindow : Window
 
         var fallback = Path.Combine(Directory.GetCurrentDirectory(), "Mesh");
         return fallback;
+    }
+
+    private void EnsureFundamentalDirectories()
+    {
+        var roots = new[] { Directory.GetCurrentDirectory(), AppContext.BaseDirectory }
+            .Where(path => !string.IsNullOrWhiteSpace(path))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var root in roots)
+        {
+            foreach (var directoryName in FundamentalDirectories)
+            {
+                var directoryPath = Path.Combine(root, directoryName);
+                if (Directory.Exists(directoryPath))
+                {
+                    continue;
+                }
+
+                Directory.CreateDirectory(directoryPath);
+                AppendDiagnostic($"Created folder: {directoryPath}");
+            }
+        }
     }
 
     private void TryLoadInitialModel()
